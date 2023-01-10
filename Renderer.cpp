@@ -3,23 +3,20 @@
 #include "Camera.h"
 #include "Ray.h"
 
-#include<iostream>
+#include <iostream>
+#include <future>
 
-
-Renderer::Renderer(int width, int height)
+Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height)
 {
-    _camera = new Camera(
-        glm::vec3(0, 0, -5),
-        glm::vec3(0, 0, 1),
-        glm::vec3(0, 1, 0),
-        60,
-        glm::ivec2(width, height)
-    );
+    _camera = camera;
+    _buffer = buffer;
+    _width = width;
+    _height = height;
 }
 
 Renderer::~Renderer()
 {
-    delete _camera;
+    
 }
 
 void AssignRGBA(unsigned char* pixel, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
@@ -35,6 +32,18 @@ void Renderer::AddMesh(const Mesh& mesh)
     _meshes.push_back(mesh);
 }
 
+void Renderer::Refresh()
+{
+    if(_onRender)
+    {
+        _refresh = true;
+    }
+    else
+    {
+        Render();
+    }
+}
+
 bool Renderer::RayCast(const Ray& ray)
 {
     for (size_t i = 0; i < _meshes.size(); i++)
@@ -47,8 +56,14 @@ bool Renderer::RayCast(const Ray& ray)
     return false;
 }
 
-void Renderer::Render(unsigned char* buffer, int width, int height, int frame) 
+void Renderer::Render() 
 {
+    std::async(&Renderer::RenderInternal, this, _buffer, _width, _height);
+}
+
+void Renderer::RenderInternal(unsigned char* buffer, int width, int height)
+{
+    _onRender = true;
     size_t index = 0;
     for (size_t i = 0; i < height; i++)
     {
@@ -64,7 +79,15 @@ void Renderer::Render(unsigned char* buffer, int width, int height, int frame)
                 AssignRGBA(buffer + index, 0, 0, 0, 255);
             }
             index += 4;
+
+            if(_refresh)
+            {
+                _refresh = false;
+                i = 0;
+                j = 0;
+                index = 0;
+            }
         }        
     }
-       
+    _onRender = false;       
 }

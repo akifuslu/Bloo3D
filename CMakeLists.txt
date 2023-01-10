@@ -2,18 +2,33 @@ cmake_minimum_required(VERSION 3.0.0)
 project(BlooRay VERSION 0.1.0)
 
 set (CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_FLAGS "-O3")
+
 
 set (SRC 
         main.cpp
         Renderer.cpp
         Camera.cpp
         Mesh.cpp
-        external/stb_init.cpp
+        external/imgui/imgui_demo.cpp
+        external/imgui/imgui_draw.cpp
+        external/imgui/imgui_impl_glfw.cpp
+        external/imgui/imgui_impl_opengl3.cpp
+        external/imgui/imgui_tables.cpp
+        external/imgui/imgui_widgets.cpp
+        external/imgui/imgui.cpp
+        external/stb/stb_init.cpp    
+)
+
+set (INC
+        external
+        external/stb
+        external/imgui
 )
 
 add_executable(BlooRay ${SRC})
 
-include_directories(external)
+include_directories(${INC})
 
 find_package(OpenGL REQUIRED)
 find_package(GLEW REQUIRED)
