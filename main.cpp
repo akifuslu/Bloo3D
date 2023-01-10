@@ -1,6 +1,7 @@
 #include "ShaderLoader.h"
 #include "ImageLoader.h"
 #include "Renderer.h"
+#include "Importer.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -98,19 +99,25 @@ int main(void)
     glUseProgram(shader);
 
     // load texture
-    int twidth, theight, channels;
-    unsigned char* tex = ImageLoader::Load("res/Placeholder.jpg", twidth, theight, channels);
+    //int twidth, theight, channels;
+    //unsigned char* tex = ImageLoader::Load("res/Placeholder.jpg", twidth, theight, channels);
 
+    unsigned char* tex = (unsigned char*)malloc(width * height * 4 * sizeof(unsigned int));
     // create to
     unsigned int to;
     glGenTextures(1, &to);
     glBindTexture(GL_TEXTURE_2D, to);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, twidth, theight, 0, GL_RGBA, GL_UNSIGNED_BYTE, tex);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     // create renderer
-    Renderer renderer;
+    Renderer renderer(width, height);
+
+    Mesh mesh;
+    Importer::Import("res/cube.obj", mesh);
+
+    renderer.AddMesh(mesh);
 
     int frame = 0;
     glViewport(0, 0, width, height);
@@ -121,8 +128,8 @@ int main(void)
         auto time = std::chrono::high_resolution_clock().now();
 
         // render
-        renderer.Render(tex, twidth, theight, frame);
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, twidth, theight, GL_RGBA, GL_UNSIGNED_BYTE, tex);
+        renderer.Render(tex, width, height, frame);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, tex);
 
         // draw here
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
@@ -140,7 +147,8 @@ int main(void)
     glDeleteVertexArrays(1, &vao);
     glDeleteBuffers(1, &vbo);
     glDeleteBuffers(1, &ibo);
-
+    glDeleteTextures(1, &to);
+    free(tex);
 
     glfwDestroyWindow(window);
     glfwTerminate();
