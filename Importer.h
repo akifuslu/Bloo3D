@@ -9,22 +9,22 @@
 
 namespace Importer
 {
-    void ImportSingle(aiMesh* aimesh, Mesh& mesh)
+    void ImportSingle(aiMesh* aimesh, Mesh* mesh)
     {
         for (size_t i = 0; i < aimesh->mNumVertices; i++)
         {
             auto vert = aimesh->mVertices[i];
-            mesh.AddVertex({{vert.x, vert.y, vert.z}});
+            mesh->AddVertex(glm::vec3(vert.x, vert.y, vert.z));
         }
         
         for (size_t i = 0; i < aimesh->mNumFaces; i++)
         {
             auto tri = aimesh->mFaces[i];
-            mesh.AddTriangle({{tri.mIndices[0], tri.mIndices[1], tri.mIndices[2]}});
+            mesh->AddTriangle(tri.mIndices[0], tri.mIndices[1], tri.mIndices[2]);
         }        
     }
 
-    bool Import(const std::string& filepath, Mesh& mesh)
+    bool Import(const std::string& filepath, Mesh* mesh)
     {
         // Create an instance of the Importer class
         Assimp::Importer importer;

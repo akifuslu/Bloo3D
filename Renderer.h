@@ -16,10 +16,10 @@ class Renderer{
     public:
         Renderer(Camera* camera, unsigned char* buffer, int width, int height);
         ~Renderer();
-        void AddMesh(const Mesh& mesh);
+        void AddMesh(Mesh* mesh);
         void AddLight(const PointLight& light);
         void Render();
-        bool RayCast(const Ray& ray, RayHit& hit);
+        bool RayCast(const Ray& ray, RayHit* hit);
         void Refresh();
     private:
         void RenderInternal();
@@ -27,7 +27,7 @@ class Renderer{
         int _width;
         int _height;
         int _size;
-        std::vector<Mesh> _meshes;
+        std::vector<Mesh*> _meshes;
         std::vector<PointLight> _lights;
         Camera* _camera;
         volatile std::atomic_bool _refresh;

@@ -57,8 +57,8 @@ void Init(GLFWwindow*& window, int width, int height)
 
 int main(void)
 {
-    int width = 1024;
-    int height = 768;
+    int width = 800;
+    int height = 600;
     GLFWwindow* window;
 
     Init(window, width, height);
@@ -127,8 +127,9 @@ int main(void)
     // create renderer
     Renderer renderer(camera, tex, width, height);
 
-    Mesh mesh;
-    Importer::Import("res/cube.obj", mesh);
+    Mesh* mesh = new Mesh();
+    Importer::Import("res/monkey.obj", mesh);
+    mesh->BuildBVH();
     renderer.AddMesh(mesh);
 
     PointLight light(glm::vec3(5, 5, 0), glm::vec3(1, 0, 0), 30);
@@ -214,6 +215,7 @@ int main(void)
     glDeleteTextures(1, &to);
     free(tex);
     delete camera;
+    delete mesh;
 
     glfwDestroyWindow(window);
     glfwTerminate();

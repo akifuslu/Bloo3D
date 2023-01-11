@@ -39,7 +39,7 @@ void AssignRGBFromVec3(unsigned char* pixel, glm::vec3 color)
     pixel[3] = 255;
 }
 
-void Renderer::AddMesh(const Mesh& mesh)
+void Renderer::AddMesh(Mesh* mesh)
 {
     _meshes.push_back(mesh);
 }
@@ -61,17 +61,17 @@ void Renderer::Refresh()
     }
 }
 
-bool Renderer::RayCast(const Ray& ray, RayHit& hit)
+bool Renderer::RayCast(const Ray& ray, RayHit* hit)
 {
     bool hasHit = false;
     for (size_t i = 0; i < _meshes.size(); i++)
     {
         RayHit nhit;
-        if(_meshes[i].RayCast(ray, nhit))
+        if(_meshes[i]->RayCast(ray, &nhit))
         {
-            if(nhit.Distance < hit.Distance)
+            if(nhit.Distance < hit->Distance)
             {
-                hit = nhit;
+                *hit = nhit;
                 hasHit = true;
             }
         }
@@ -120,7 +120,7 @@ void Renderer::RenderInternal()
 
         auto ray = _camera->GetRay(x, y);
         RayHit hit;
-        if(RayCast(ray, hit))
+        if(RayCast(ray, &hit))
         {
             glm::vec3 color(0);
             for (size_t k = 0; k < _lights.size(); k++)

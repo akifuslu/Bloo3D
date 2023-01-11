@@ -18,6 +18,8 @@ struct Ray
 {
     glm::vec3 Orig;
     glm::vec3 Dir;
+    glm::vec3 InvDir;
+    int Sign[3];
 
     Ray()
     {
@@ -28,5 +30,9 @@ struct Ray
     {
         Orig = orig;
         Dir = dir;
+        InvDir = glm::vec3(1/Dir.x, 1/Dir.y, 1/Dir.z);
+        Sign[0] = (Dir.x > 0 ? 0 : 1);
+        Sign[1] = (Dir.y > 0 ? 0 : 1);
+        Sign[2] = (Dir.z > 0 ? 0 : 1);
     }
 };

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "IRayCastable.h"
+
 #include "glm/glm.hpp"
 #include <vector>
 
@@ -9,43 +11,37 @@ class RayHit;
 struct Vertex
 {
     glm::vec3 Pos;
-};
 
-struct Triangle
-{
-    unsigned int Inds[3];
-
-    glm::vec3 Normal;
-
-    Vertex v0;
-    Vertex v1;
-    Vertex v2;
-
-    glm::vec3 v0v1;
-    glm::vec3 v0v2; 
-
-    void CacheValues(std::vector<Vertex> verts)
+    Vertex(const glm::vec3& pos) : Pos(pos)
     {
-        v0 = verts[Inds[0]];
-        v1 = verts[Inds[1]];
-        v2 = verts[Inds[2]];
 
-        v0v1 = v1.Pos - v0.Pos;
-        v0v2 = v2.Pos - v0.Pos;
-
-        Normal = normalize(cross(v0v1, v0v2));
     }
 };
 
-class Mesh
+class Triangle : public IRayCastable
+{
+    public:
+        Triangle(Vertex* v0, Vertex* v1, Vertex* v2);
+        virtual bool RayCast(const Ray& ray, RayHit* hit) override;
+        glm::vec3 Normal;        
+    private:
+        Vertex* _v0;
+        Vertex* _v1;
+        Vertex* _v2;
+        glm::vec3 _v0v1;
+        glm::vec3 _v0v2; 
+};
+
+class Mesh : public IRayCastable
 {
     public:
         Mesh();
-        bool RayCast(const Ray& ray, RayHit& hit);
-        void AddVertex(Vertex vert);
-        void AddTriangle(Triangle tri);
+        ~Mesh();
+        void BuildBVH();
+        virtual bool RayCast(const Ray& ray, RayHit* hit) override;
+        void AddVertex(glm::vec3 pos);
+        void AddTriangle(int i, int j, int k);
     private:
-        bool RayCastTriangle(const Ray& ray, const Triangle& tri, RayHit& hit);
-        std::vector<Vertex> _verts;
-        std::vector<Triangle> _tris;
+        std::vector<Vertex*> _verts;
+        std::vector<Triangle*> _tris;
 };
