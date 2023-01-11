@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <future>
+#include <thread>
 
 Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height)
 {
@@ -13,6 +14,7 @@ Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height)
     _buffer = buffer;
     _width = width;
     _height = height;
+    _size = _width * _height;
 }
 
 Renderer::~Renderer()
@@ -51,7 +53,7 @@ void Renderer::Refresh()
 {
     if(_onRender)
     {
-        _refresh = true;
+        _pixelIndex = 0;
     }
     else
     {
@@ -79,51 +81,60 @@ bool Renderer::RayCast(const Ray& ray, RayHit& hit)
 
 void Renderer::Render() 
 {
-    std::async(&Renderer::RenderInternal, this, _buffer, _width, _height);
+    std::cout << "Render Started" << std::endl;
+    _onRender = true;
+    _pixelIndex = 0;
+    _finishedThreads = 0;
+    int cores = 8;//std::thread::hardware_concurrency();
+    while(cores--)
+    {
+        _futures.push_back(std::async(&Renderer::RenderInternal, this));
+    }
+
+    _futureCompletion = std::async([=]()
+    {
+        while(true)
+        {
+            if(_finishedThreads == _futures.size())
+            {
+                _futures.clear();
+                _onRender = false;
+                std::cout << "Render Finished" << std::endl;
+                break;
+            }
+        }
+
+    });
 }
 
-void Renderer::RenderInternal(unsigned char* buffer, int width, int height)
+void Renderer::RenderInternal()
 {
-    std::cout << width << std::endl;
-    std::cout << height << std::endl;
-    _onRender = true;
-    size_t index = 0;
-    for (size_t i = 0; i < height; i++)
+    while(_pixelIndex < _size)
     {
-        for (size_t j = 0; j < width; j++)
-        {
-            auto ray = _camera->GetRay(j, i);
-            RayHit hit;
-            if(RayCast(ray, hit))
-            {
-                glm::vec3 color(0);
-                for (size_t k = 0; k < _lights.size(); k++)
-                {
-                    glm::vec3 lightDir = normalize(_lights[k].GetPos() - hit.Point);
-                    glm::vec3 luminance = _lights[k].GetLuminance(hit.Point);
-                    // DIFFUSE
-                    float teta = dot(lightDir, hit.Normal);
-                    teta = teta < 0 ? 0 : teta;
-                    color += luminance * teta * 255.0f;                                                
-                }
-                AssignRGBFromVec3(buffer + index, color);
-            }
-            else
-            {
-                AssignRGBA(buffer + index, 0, 0, 0, 255);
-            }
-            index += 4;
+        int index = _pixelIndex++;
+        int x = index % _width;
+        int y = index / _width;                            
 
-            if(_refresh)
+        auto ray = _camera->GetRay(x, y);
+        RayHit hit;
+        if(RayCast(ray, hit))
+        {
+            glm::vec3 color(0);
+            for (size_t k = 0; k < _lights.size(); k++)
             {
-                _refresh = false;
-                i = 0;
-                j = 0;
-                index = 0;
-                std::cout << "Refreshin Render" << std::endl;
+                glm::vec3 lightDir = normalize(_lights[k].GetPos() - hit.Point);
+                glm::vec3 luminance = _lights[k].GetLuminance(hit.Point);
+                // DIFFUSE
+                float teta = dot(lightDir, hit.Normal);
+                teta = teta < 0 ? 0 : teta;
+                color += luminance * teta * 255.0f;                                                
             }
-        }        
+            AssignRGBFromVec3(_buffer + index * 4, color);
+        }
+        else
+        {
+            AssignRGBA(_buffer + index * 4, 0, 0, 0, 255);
+        }
     }
-    _onRender = false;       
-    std::cout << "Render Complete" << std::endl;
+    _finishedThreads++;    
 }

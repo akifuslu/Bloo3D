@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <atomic>
+#include <future>
 
 class Mesh;
 class Ray;
@@ -20,13 +21,18 @@ class Renderer{
         bool RayCast(const Ray& ray, RayHit& hit);
         void Refresh();
     private:
-        void RenderInternal(unsigned char* buffer, int width, int height);
+        void RenderInternal();
         unsigned char* _buffer;
         int _width;
         int _height;
+        int _size;
         std::vector<Mesh> _meshes;
         std::vector<PointLight> _lights;
         Camera* _camera;
-        std::atomic_bool _refresh;
-        std::atomic_bool _onRender;
+        volatile std::atomic_bool _refresh;
+        volatile std::atomic_bool _onRender;
+        volatile std::atomic_int _pixelIndex;
+        volatile std::atomic_int _finishedThreads;
+        std::future<void> _futureCompletion;
+        std::vector<std::future<void>> _futures;
 };
