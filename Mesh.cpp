@@ -6,52 +6,52 @@ Mesh::Mesh()
     
 }
 
-bool Mesh::RayCastTriangle(const Ray& ray, const Triangle& tri)
+bool Mesh::RayCastTriangle(const Ray& ray, const Triangle& tri, RayHit& hit)
 {
-    auto v0 = _verts[tri.Inds[0]];
-    auto v1 = _verts[tri.Inds[1]];
-    auto v2 = _verts[tri.Inds[2]];
-
-    auto v0v1 = v1.Pos - v0.Pos;
-    auto v0v2 = v2.Pos - v0.Pos;
-
-    auto pvec = cross(ray.Dir, v0v2);
-    float det = dot(v0v1, pvec);
-    if (std::fabs(det) < 1e-9)
+    auto pvec = cross(ray.Dir, tri.v0v2);
+    float det = dot(tri.v0v1, pvec);
+    if (std::fabs(det) < 1e-6)
     {            
         return false;
     }
 
     float invDet = 1.0 / det;
-    auto tvec = ray.Orig - v0.Pos;
+    auto tvec = ray.Orig - tri.v0.Pos;
     float u = dot(tvec, pvec) * invDet;
     if (u < 0 || u > 1)
         return false;
 
-    auto qvec = cross(tvec, v0v1);
+    auto qvec = cross(tvec, tri.v0v1);
     float v = dot(ray.Dir, qvec) * invDet;
     if (v < 0 || u + v > 1)
         return false;
-    float t = dot(v0v2, qvec) * invDet;
+    float t = dot(tri.v0v2, qvec) * invDet;
     if(t < 0)
     {
         return false;
     }
-    // hit.T = t;
-    // hit.Point = (*V0) + u * ((*V1) - (*V0)) + v * ((*V2) - (*V0));
+    hit.Distance = t;
+    hit.Point = tri.v0.Pos + u * tri.v0v1 + v * tri.v0v2;
+    hit.Normal = tri.Normal;
     return true;
 }
 
-bool Mesh::RayCast(const Ray& ray) 
+bool Mesh::RayCast(const Ray& ray, RayHit& hit) 
 {
+    bool hasHit = false;
     for (size_t i = 0; i < _tris.size(); i++)
     {
-        if(RayCastTriangle(ray, _tris[i]))
+        RayHit nhit;
+        if(RayCastTriangle(ray, _tris[i], nhit))
         {
-            return true;
+            if(nhit.Distance < hit.Distance)
+            {
+                hit = nhit;
+                hasHit = true;
+            }
         }
     }
-    return false;
+    return hasHit;
 }
 
 void Mesh::AddVertex(Vertex vert) 
@@ -61,5 +61,6 @@ void Mesh::AddVertex(Vertex vert)
 
 void Mesh::AddTriangle(Triangle tri) 
 {
+    tri.CacheValues(_verts);
     _tris.push_back(tri);    
 }

@@ -2,6 +2,18 @@
 
 #include "glm/glm.hpp"
 
+struct RayHit
+{
+    glm::vec3 Point;
+    glm::vec3 Normal;
+    float Distance;
+
+    RayHit()
+    {
+        Distance = FLT_MAX;
+    }
+};
+
 struct Ray
 {
     glm::vec3 Orig;

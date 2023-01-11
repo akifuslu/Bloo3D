@@ -11,14 +11,6 @@ Camera::Camera::Camera(glm::vec3 pos,
                        float fov,
                        glm::ivec2 res) 
 {
-
-    _mat = glm::mat4(1.0f);
-    _mat = glm::rotate(glm::radians(rot.x), glm::vec3(1, 0, 0)) * _mat;
-    _mat = glm::rotate(glm::radians(rot.y), glm::vec3(0, 1, 0)) * _mat;
-    _mat = glm::rotate(glm::radians(rot.z), glm::vec3(0, 0, 1)) * _mat;
-    _mat = glm::translate(_mat, pos);
-    _tInvMat = transpose((inverse(_mat)));
-
     _pos = pos;
     _rot = rot;
     _fov = fov;
@@ -26,6 +18,8 @@ Camera::Camera::Camera(glm::vec3 pos,
 
     _scale = tan(_fov * 0.5 * M_PI / 180.0);
     _aspect = _res.x / (float)_res.y;    
+
+    RebuildMatrix();
 }
 
 Ray Camera::Camera::GetRay(int x, int y) 
@@ -52,10 +46,10 @@ void Camera::SetRotation(glm::vec3 rot)
 void Camera::RebuildMatrix()
 {
     _mat = glm::mat4(1.0f);
+    _mat = glm::translate(_mat, _pos);
     _mat = glm::rotate(glm::radians(_rot.x), glm::vec3(1, 0, 0)) * _mat;
     _mat = glm::rotate(glm::radians(_rot.y), glm::vec3(0, 1, 0)) * _mat;
     _mat = glm::rotate(glm::radians(_rot.z), glm::vec3(0, 0, 1)) * _mat;
-    _mat = glm::translate(_mat, _pos);
     _tInvMat = transpose((inverse(_mat)));
 }
 

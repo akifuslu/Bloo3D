@@ -5,7 +5,9 @@
 
 class Mesh;
 class Ray;
+class RayHit;
 class Camera;
+class PointLight;
 
 class Renderer{
 
@@ -13,8 +15,9 @@ class Renderer{
         Renderer(Camera* camera, unsigned char* buffer, int width, int height);
         ~Renderer();
         void AddMesh(const Mesh& mesh);
+        void AddLight(const PointLight& light);
         void Render();
-        bool RayCast(const Ray& ray);
+        bool RayCast(const Ray& ray, RayHit& hit);
         void Refresh();
     private:
         void RenderInternal(unsigned char* buffer, int width, int height);
@@ -22,7 +25,8 @@ class Renderer{
         int _width;
         int _height;
         std::vector<Mesh> _meshes;
+        std::vector<PointLight> _lights;
         Camera* _camera;
         std::atomic_bool _refresh;
-        bool _onRender;
+        std::atomic_bool _onRender;
 };

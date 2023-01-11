@@ -3,6 +3,7 @@
 #include "Renderer.h"
 #include "Importer.h"
 #include "Camera.h"
+#include "PointLight.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -115,8 +116,8 @@ int main(void)
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-    glm::vec3 camPos(0, 0, -10);
-    glm::vec3 camRot(0, 0, 0);
+    glm::vec3 camPos(3, 5, -10);
+    glm::vec3 camRot(27, -16, 0);
     Camera* camera = new Camera(
         camPos,
         camRot,
@@ -127,9 +128,15 @@ int main(void)
     Renderer renderer(camera, tex, width, height);
 
     Mesh mesh;
-    Importer::Import("res/cube.obj", mesh);
-
+    Importer::Import("res/monkey.obj", mesh);
     renderer.AddMesh(mesh);
+
+    PointLight light(glm::vec3(5, 5, 0), glm::vec3(1, 0, 0), 30);
+    PointLight light2(glm::vec3(-5, 5, -3), glm::vec3(0, 0, 1), 30);
+
+    renderer.AddLight(light);
+    renderer.AddLight(light2);
+
     renderer.Render();
 
     // imgui setup
@@ -178,6 +185,10 @@ int main(void)
 
         ImGui::ShowDemoWindow();
 
+        if(ImGui::Button("Force Refresh"))
+        {
+            renderer.Refresh();
+        }
         if(ImGui::DragFloat3("pos", &camPos[0]))
         {
             camera->SetPosition(camPos);

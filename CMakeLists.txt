@@ -10,6 +10,7 @@ set (SRC
         Renderer.cpp
         Camera.cpp
         Mesh.cpp
+        PointLight.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp
