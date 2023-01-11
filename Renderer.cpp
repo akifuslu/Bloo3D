@@ -85,13 +85,14 @@ void Renderer::Render()
     _onRender = true;
     _pixelIndex = 0;
     _finishedThreads = 0;
-    int cores = 8;//std::thread::hardware_concurrency();
+    int cores = std::thread::hardware_concurrency();
     while(cores--)
     {
         _futures.push_back(std::async(&Renderer::RenderInternal, this));
     }
 
-    _futureCompletion = std::async([=]()
+    auto time = std::chrono::high_resolution_clock().now();
+    _futureCompletion = std::async([=, start = time]()
     {
         while(true)
         {
@@ -99,7 +100,9 @@ void Renderer::Render()
             {
                 _futures.clear();
                 _onRender = false;
+                std::chrono::duration<double, std::milli> deltaTime = std::chrono::high_resolution_clock().now() - start;
                 std::cout << "Render Finished" << std::endl;
+                std::cout << deltaTime.count() << "ms" << std::endl;
                 break;
             }
         }

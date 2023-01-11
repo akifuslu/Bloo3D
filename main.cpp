@@ -128,7 +128,7 @@ int main(void)
     Renderer renderer(camera, tex, width, height);
 
     Mesh mesh;
-    Importer::Import("res/monkey.obj", mesh);
+    Importer::Import("res/cube.obj", mesh);
     renderer.AddMesh(mesh);
 
     PointLight light(glm::vec3(5, 5, 0), glm::vec3(1, 0, 0), 30);

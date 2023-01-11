@@ -3,6 +3,7 @@
 #include <vector>
 #include <atomic>
 #include <future>
+#include <chrono>
 
 class Mesh;
 class Ray;
