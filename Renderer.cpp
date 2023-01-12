@@ -8,7 +8,7 @@
 #include <future>
 #include <thread>
 
-Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height)
+Renderer::Renderer(std::shared_ptr<Camera> camera, unsigned char* buffer, int width, int height)
 {
     _camera = camera;
     _buffer = buffer;
@@ -39,12 +39,12 @@ void AssignRGBFromVec3(unsigned char* pixel, glm::vec3 color)
     pixel[3] = 255;
 }
 
-void Renderer::AddMesh(Mesh* mesh)
+void Renderer::AddMesh(std::shared_ptr<Mesh> mesh)
 {
     _meshes.push_back(mesh);
 }
 
-void Renderer::AddLight(const PointLight& light)
+void Renderer::AddLight(std::shared_ptr<PointLight> light)
 {
     _lights.push_back(light);
 }
@@ -125,8 +125,8 @@ void Renderer::RenderInternal()
             glm::vec3 color(0);
             for (size_t k = 0; k < _lights.size(); k++)
             {
-                glm::vec3 lightDir = normalize(_lights[k].GetPos() - hit.Point);
-                glm::vec3 luminance = _lights[k].GetLuminance(hit.Point);
+                glm::vec3 lightDir = normalize(_lights[k]->GetPos() - hit.Point);
+                glm::vec3 luminance = _lights[k]->GetLuminance(hit.Point);
                 // DIFFUSE
                 float teta = dot(lightDir, hit.Normal);
                 teta = teta < 0 ? 0 : teta;

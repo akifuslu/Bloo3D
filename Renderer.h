@@ -4,6 +4,7 @@
 #include <atomic>
 #include <future>
 #include <chrono>
+#include <memory>
 
 class Mesh;
 class Ray;
@@ -14,10 +15,10 @@ class PointLight;
 class Renderer{
 
     public:
-        Renderer(Camera* camera, unsigned char* buffer, int width, int height);
+        Renderer(std::shared_ptr<Camera> camera, unsigned char* buffer, int width, int height);
         ~Renderer();
-        void AddMesh(Mesh* mesh);
-        void AddLight(const PointLight& light);
+        void AddMesh(std::shared_ptr<Mesh> mesh);
+        void AddLight(std::shared_ptr<PointLight> light);
         void Render();
         bool RayCast(const Ray& ray, RayHit* hit);
         void Refresh();
@@ -27,9 +28,9 @@ class Renderer{
         int _width;
         int _height;
         int _size;
-        std::vector<Mesh*> _meshes;
-        std::vector<PointLight> _lights;
-        Camera* _camera;
+        std::shared_ptr<Camera> _camera;
+        std::vector<std::shared_ptr<Mesh>> _meshes;
+        std::vector<std::shared_ptr<PointLight>> _lights;
         volatile std::atomic_bool _refresh;
         volatile std::atomic_bool _onRender;
         volatile std::atomic_int _pixelIndex;

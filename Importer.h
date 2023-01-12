@@ -9,7 +9,7 @@
 
 namespace Importer
 {
-    void ImportSingle(aiMesh* aimesh, Mesh* mesh)
+    void ImportSingle(aiMesh* aimesh, const std::shared_ptr<Mesh>& mesh)
     {
         for (size_t i = 0; i < aimesh->mNumVertices; i++)
         {
@@ -24,7 +24,7 @@ namespace Importer
         }        
     }
 
-    bool Import(const std::string& filepath, Mesh* mesh)
+    bool Import(const std::string& filepath, const std::shared_ptr<Mesh>& mesh)
     {
         // Create an instance of the Importer class
         Assimp::Importer importer;

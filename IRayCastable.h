@@ -1,5 +1,7 @@
 #pragma once
 
+#include <memory>
+
 class Ray;
 class RayHit;
 class AABB;
@@ -11,5 +13,5 @@ class IRayCastable
         {
             return false;
         }
-        AABB* Box;
+        std::unique_ptr<AABB> BoundingBox;
 };

@@ -13,6 +13,7 @@
 #include <iostream>
 #include <chrono>
 #include <future>
+#include <memory>
 
 static void error_callback(int error, const char* description)
 {
@@ -118,7 +119,7 @@ int main(void)
 
     glm::vec3 camPos(3, 5, -10);
     glm::vec3 camRot(27, -16, 0);
-    Camera* camera = new Camera(
+    std::shared_ptr<Camera> camera = std::make_shared<Camera>(
         camPos,
         camRot,
         60,
@@ -127,13 +128,13 @@ int main(void)
     // create renderer
     Renderer renderer(camera, tex, width, height);
 
-    Mesh* mesh = new Mesh();
+    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
     Importer::Import("res/monkey.obj", mesh);
     mesh->BuildBVH();
     renderer.AddMesh(mesh);
 
-    PointLight light(glm::vec3(5, 5, 0), glm::vec3(1, 0, 0), 30);
-    PointLight light2(glm::vec3(-5, 5, -3), glm::vec3(0, 0, 1), 30);
+    std::shared_ptr<PointLight> light = std::make_shared<PointLight>(glm::vec3(5, 5, 0), glm::vec3(1, 0, 0), 30);
+    std::shared_ptr<PointLight> light2 = std::make_shared<PointLight>(glm::vec3(-5, 5, -3), glm::vec3(0, 0, 1), 30);
 
     renderer.AddLight(light);
     renderer.AddLight(light2);
@@ -214,8 +215,6 @@ int main(void)
     glDeleteBuffers(1, &ibo);
     glDeleteTextures(1, &to);
     free(tex);
-    delete camera;
-    delete mesh;
 
     glfwDestroyWindow(window);
     glfwTerminate();

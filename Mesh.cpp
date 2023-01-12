@@ -2,43 +2,30 @@
 #include "Ray.h"
 #include "AABB.h"
 
-Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
+Triangle::Triangle(const std::shared_ptr<Vertex>& v0, const std::shared_ptr<Vertex>& v1, const std::shared_ptr<Vertex>& v2)
     : _v0(v0), _v1(v1), _v2(v2)
 {
     _v0v1 = v1->Pos - v0->Pos;
     _v0v2 = v2->Pos - v0->Pos;
 
     Normal = normalize(cross(_v0v1, _v0v2));
-    Box = new AABB(_v0->Pos, _v1->Pos, _v2->Pos);
+    BoundingBox = std::make_unique<AABB>(_v0->Pos, _v1->Pos, _v2->Pos);
 }
 
 Mesh::Mesh()
 {
-    Box = nullptr;
 }
 
 Mesh::~Mesh()
 {
-    for (size_t i = 0; i < _tris.size(); i++)
-    {
-        delete _tris[i];
-    }    
-    for (size_t i = 0; i < _verts.size(); i++)
-    {
-        delete _verts[i];
-    }    
-    _tris.clear();
-    _verts.clear();
-
-    delete Box;
 }
 
 void Mesh::BuildBVH()
 {
-    Box = new AABB();
+    BoundingBox = std::make_unique<AABB>();
     for (size_t i = 0; i < _tris.size(); i++)
     {
-        Box->Extend(*_tris[i]->Box);
+        BoundingBox->Extend(*_tris[i]->BoundingBox);
     }    
 }
 
@@ -74,7 +61,7 @@ bool Triangle::RayCast(const Ray& ray, RayHit* hit)
 
 bool Mesh::RayCast(const Ray& ray, RayHit* hit) 
 {
-    if(!Box->Test(ray))
+    if(!BoundingBox->Test(ray))
     {        
         return false;
     }
@@ -97,12 +84,12 @@ bool Mesh::RayCast(const Ray& ray, RayHit* hit)
 
 void Mesh::AddVertex(glm::vec3 pos) 
 {
-    Vertex* vert = new Vertex(pos);
+    std::shared_ptr<Vertex> vert = std::make_shared<Vertex>(pos);
     _verts.push_back(vert);   
 }
 
 void Mesh::AddTriangle(int i, int j, int k) 
 {
-    Triangle* tri = new Triangle(_verts[i], _verts[j], _verts[k]);
-    _tris.push_back(tri);    
+    std::unique_ptr<Triangle> tri = std::make_unique<Triangle>(_verts[i], _verts[j], _verts[k]);
+    _tris.push_back(std::move(tri));    
 }

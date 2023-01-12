@@ -4,6 +4,7 @@
 
 #include "glm/glm.hpp"
 #include <vector>
+#include <memory>
 
 class Ray;
 class RayHit;
@@ -21,13 +22,13 @@ struct Vertex
 class Triangle : public IRayCastable
 {
     public:
-        Triangle(Vertex* v0, Vertex* v1, Vertex* v2);
+        Triangle(const std::shared_ptr<Vertex>& v0, const std::shared_ptr<Vertex>& v1, const std::shared_ptr<Vertex>& v2);
         virtual bool RayCast(const Ray& ray, RayHit* hit) override;
         glm::vec3 Normal;        
     private:
-        Vertex* _v0;
-        Vertex* _v1;
-        Vertex* _v2;
+        std::shared_ptr<Vertex> _v0;
+        std::shared_ptr<Vertex> _v1;
+        std::shared_ptr<Vertex> _v2;
         glm::vec3 _v0v1;
         glm::vec3 _v0v2; 
 };
@@ -42,6 +43,6 @@ class Mesh : public IRayCastable
         void AddVertex(glm::vec3 pos);
         void AddTriangle(int i, int j, int k);
     private:
-        std::vector<Vertex*> _verts;
-        std::vector<Triangle*> _tris;
+        std::vector<std::shared_ptr<Vertex>> _verts;
+        std::vector<std::unique_ptr<Triangle>> _tris;
 };
