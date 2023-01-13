@@ -1,10 +1,10 @@
 #pragma once
 
+#include "AABB.h"
 #include <memory>
 
 class Ray;
 class RayHit;
-class AABB;
 
 class IRayCastable
 {

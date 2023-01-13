@@ -1,6 +1,7 @@
 #include "Mesh.h"
 #include "Ray.h"
 #include "AABB.h"
+#include <span>
 
 Triangle::Triangle(const std::shared_ptr<Vertex>& v0, const std::shared_ptr<Vertex>& v1, const std::shared_ptr<Vertex>& v2)
     : _v0(v0), _v1(v1), _v2(v2)
@@ -22,11 +23,9 @@ Mesh::~Mesh()
 
 void Mesh::BuildBVH()
 {
+    _bvh = std::make_shared<BVHNode<std::shared_ptr<Triangle>>>(_tris);
     BoundingBox = std::make_unique<AABB>();
-    for (size_t i = 0; i < _tris.size(); i++)
-    {
-        BoundingBox->Extend(*_tris[i]->BoundingBox);
-    }    
+    BoundingBox->Extend(*_bvh->BoundingBox.get());
 }
 
 bool Triangle::RayCast(const Ray& ray, RayHit* hit)
@@ -61,25 +60,7 @@ bool Triangle::RayCast(const Ray& ray, RayHit* hit)
 
 bool Mesh::RayCast(const Ray& ray, RayHit* hit) 
 {
-    if(!BoundingBox->Test(ray))
-    {        
-        return false;
-    }
-
-    bool hasHit = false;
-    for (size_t i = 0; i < _tris.size(); i++)
-    {
-        RayHit nhit;
-        if(_tris[i]->RayCast(ray, &nhit))
-        {
-            if(nhit.Distance < hit->Distance)
-            {
-                *hit = nhit;
-                hasHit = true;
-            }
-        }
-    }
-    return hasHit;
+    return _bvh->RayCast(ray, hit);
 }
 
 void Mesh::AddVertex(glm::vec3 pos) 
@@ -90,6 +71,6 @@ void Mesh::AddVertex(glm::vec3 pos)
 
 void Mesh::AddTriangle(int i, int j, int k) 
 {
-    std::unique_ptr<Triangle> tri = std::make_unique<Triangle>(_verts[i], _verts[j], _verts[k]);
+    std::shared_ptr<Triangle> tri = std::make_shared<Triangle>(_verts[i], _verts[j], _verts[k]);
     _tris.push_back(std::move(tri));    
 }

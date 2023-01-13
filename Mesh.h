@@ -5,6 +5,7 @@
 #include "glm/glm.hpp"
 #include <vector>
 #include <memory>
+#include "BVH.h"
 
 class Ray;
 class RayHit;
@@ -44,5 +45,6 @@ class Mesh : public IRayCastable
         void AddTriangle(int i, int j, int k);
     private:
         std::vector<std::shared_ptr<Vertex>> _verts;
-        std::vector<std::unique_ptr<Triangle>> _tris;
+        std::vector<std::shared_ptr<Triangle>> _tris;
+        std::shared_ptr<BVHNode<std::shared_ptr<Triangle>>> _bvh;
 };
