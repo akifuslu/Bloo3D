@@ -13,5 +13,5 @@ class IRayCastable
         {
             return false;
         }
-        std::unique_ptr<AABB> BoundingBox;
+        AABB Bounds;
 };

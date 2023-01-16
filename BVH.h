@@ -5,13 +5,12 @@
 #include <vector>
 #include <span>
 #include <algorithm>
+#include <iostream>
 
-
-template<typename T>
 class BVHNode : public IRayCastable 
 {
     public:
-        BVHNode(std::span<T> entities)
+        BVHNode(std::span<IRayCastable*> entities)
         {
             if(entities.size() == 1)
             {
@@ -27,22 +26,23 @@ class BVHNode : public IRayCastable
             {
                 float c;
                 int axis = GetMaxAxis(entities, &c);
+                //std::cout << axis << std::endl;
                 int mid = Split(entities, c, axis);
                 int rem = entities.size() - mid;
-                Left  = std::make_shared<BVHNode<T>>(entities.subspan(0, mid));
-                Right = std::make_shared<BVHNode<T>>(entities.subspan(mid, rem));
+                Left  = new BVHNode(entities.subspan(0, mid));
+                Right = new BVHNode(entities.subspan(mid, rem));
             }
-            BoundingBox = std::make_unique<AABB>();
-            BoundingBox->Extend(*Left->BoundingBox.get());
-            BoundingBox->Extend(*Right->BoundingBox.get());
+            Bounds = AABB();
+            Bounds.Extend(Left->Bounds);
+            Bounds.Extend(Right->Bounds);
         }
 
-        int Split(std::span<T> entities, float c, int axis)
+        int Split(std::span<IRayCastable*> entities, float c, int axis)
         {
             int mid = 0;
             for(int i = 0; i < entities.size(); i++)
             {
-                if(entities[i]->BoundingBox->Center[axis] < c)
+                if(entities[i]->Bounds.Center[axis] < c)
                 {
                     auto tmp = entities[i];
                     entities[i] = entities[mid];
@@ -50,11 +50,15 @@ class BVHNode : public IRayCastable
                     mid++;
                 }
             }
-            if(mid == 0 || mid == entities.size()) mid = entities.size() / 2;
+            if(mid == 0 || mid == entities.size())
+            { 
+                //std::cout << "SEX" << std::endl;
+                mid = entities.size() / 2;
+            }
             return mid;
         }
 
-        int GetMaxAxis(std::span<T> entities, float* c)
+        int GetMaxAxis(std::span<IRayCastable*> entities, float* c)
         {
             float mins[3] {FLT_MAX, FLT_MAX, FLT_MAX};
             float maxs[3] {FLT_MIN, FLT_MIN, FLT_MIN};
@@ -62,23 +66,25 @@ class BVHNode : public IRayCastable
             {
                 for (size_t j = 0; j < 3; j++)
                 {
-                    mins[j] = std::min(mins[j], entities[i]->BoundingBox->Bounds[0][j]);   
-                    maxs[j] = std::max(maxs[j], entities[i]->BoundingBox->Bounds[1][j]); 
+                    mins[j] = std::min(mins[j], entities[i]->Bounds.Extends[0][j]);   
+                    maxs[j] = std::max(maxs[j], entities[i]->Bounds.Extends[1][j]); 
                 }                
             }            
             float d0 = maxs[0] - mins[0];
             float d1 = maxs[1] - mins[1];
             float d2 = maxs[2] - mins[2];
 
-            int axis = d0 > d1 ? 0 : 1;
-            axis = d2 > axis ? 2 : axis;
+            int axis = 0;
+            if(d1 > d0 && d1 > d2) axis = 1;
+            if(d2 > d0 && d2 > d1) axis = 2;
+
             *c = (maxs[axis] + mins[axis]) / 2;
             return axis;
         }
 
         virtual bool RayCast(const Ray& ray, RayHit* hit) override
         {
-            if(!BoundingBox->Test(ray))
+            if(!Bounds.Test(ray))
             {
                 return false;
             }
@@ -90,7 +96,7 @@ class BVHNode : public IRayCastable
             *hit = lhit.Distance < rhit.Distance ? lhit : rhit; 
             return l || r;
         }
-        std::shared_ptr<IRayCastable> Left;
-        std::shared_ptr<IRayCastable> Right;        
+        IRayCastable* Left;
+        IRayCastable* Right;        
 };
 

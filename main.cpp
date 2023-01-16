@@ -129,7 +129,7 @@ int main(void)
     Renderer renderer(camera, tex, width, height);
 
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-    Importer::Import("res/monkey.obj", mesh);
+    Importer::Import("res/output.obj", mesh);
     mesh->BuildBVH();
     renderer.AddMesh(mesh);
 

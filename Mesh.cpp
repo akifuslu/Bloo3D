@@ -3,14 +3,14 @@
 #include "AABB.h"
 #include <span>
 
-Triangle::Triangle(const std::shared_ptr<Vertex>& v0, const std::shared_ptr<Vertex>& v1, const std::shared_ptr<Vertex>& v2)
+Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
     : _v0(v0), _v1(v1), _v2(v2)
 {
     _v0v1 = v1->Pos - v0->Pos;
     _v0v2 = v2->Pos - v0->Pos;
 
     Normal = normalize(cross(_v0v1, _v0v2));
-    BoundingBox = std::make_unique<AABB>(_v0->Pos, _v1->Pos, _v2->Pos);
+    Bounds = AABB(_v0->Pos, _v1->Pos, _v2->Pos);
 }
 
 Mesh::Mesh()
@@ -23,9 +23,14 @@ Mesh::~Mesh()
 
 void Mesh::BuildBVH()
 {
-    _bvh = std::make_shared<BVHNode<std::shared_ptr<Triangle>>>(_tris);
-    BoundingBox = std::make_unique<AABB>();
-    BoundingBox->Extend(*_bvh->BoundingBox.get());
+    std::vector<IRayCastable*> rtris; 
+    for (size_t i = 0; i < _tris.size(); i++)
+    {
+        rtris.push_back(_tris[i]);
+    }    
+    _bvh = new BVHNode(rtris);
+    Bounds = AABB();
+    Bounds.Extend(_bvh->Bounds);
 }
 
 bool Triangle::RayCast(const Ray& ray, RayHit* hit)
@@ -65,12 +70,12 @@ bool Mesh::RayCast(const Ray& ray, RayHit* hit)
 
 void Mesh::AddVertex(glm::vec3 pos) 
 {
-    std::shared_ptr<Vertex> vert = std::make_shared<Vertex>(pos);
+    Vertex* vert = new Vertex(pos);
     _verts.push_back(vert);   
 }
 
 void Mesh::AddTriangle(int i, int j, int k) 
 {
-    std::shared_ptr<Triangle> tri = std::make_shared<Triangle>(_verts[i], _verts[j], _verts[k]);
-    _tris.push_back(std::move(tri));    
+    Triangle* tri = new Triangle(_verts[i], _verts[j], _verts[k]);
+    _tris.push_back(tri);    
 }
