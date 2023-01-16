@@ -11,7 +11,8 @@ struct AABB
 
     AABB()
     {
-        
+        Extends[0] = glm::vec3(FLT_MAX);
+        Extends[1] = glm::vec3(FLT_MIN);
     }
 
     AABB(const AABB& other)
@@ -32,6 +33,12 @@ struct AABB
             Extends[1][i] = std::max(p1[i], std::max(p2[i], p3[i]));
         }        
         Center = (Extends[0] + Extends[1]) / 2.0f;
+    }
+
+    float Area()
+    {
+        auto e = Extends[1] - Extends[0];
+        return e.x * e.y + e.y * e.z + e.z * e.x;
     }
 
     void Extend(const AABB& other)

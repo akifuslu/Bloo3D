@@ -129,12 +129,12 @@ int main(void)
     Renderer renderer(camera, tex, width, height);
 
     std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-    Importer::Import("res/bunny.obj", mesh);
+    Importer::Import("res/tower.obj", mesh);
     mesh->BuildBVH();
     renderer.AddMesh(mesh);
 
-    std::shared_ptr<PointLight> light = std::make_shared<PointLight>(glm::vec3(5, 5, 0), glm::vec3(1, 0, 0), 30);
-    std::shared_ptr<PointLight> light2 = std::make_shared<PointLight>(glm::vec3(-5, 5, -3), glm::vec3(0, 0, 1), 30);
+    std::shared_ptr<PointLight> light = std::make_shared<PointLight>(glm::vec3(50, 50, 0), glm::vec3(1, 0, 0), 3000);
+    std::shared_ptr<PointLight> light2 = std::make_shared<PointLight>(glm::vec3(-50, 50, -30), glm::vec3(0, 0, 1), 3000);
 
     renderer.AddLight(light);
     renderer.AddLight(light2);

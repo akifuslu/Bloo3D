@@ -33,34 +33,65 @@ class BVHNode : public IRayCastable
             }
             else
             {
-                float c;
-                int axis = 0; //GetMaxAxis(entities, &c);
+                float bestPos, bestCost = FLT_MAX;
+                int bestAxis = -1;                
+                int planeCount = 100;
 
-                if(Bounds.Extends[1][1] - Bounds.Extends[0][1] > Bounds.Extends[1][0] - Bounds.Extends[0][0]) axis = 1;
-                if(Bounds.Extends[1][2] - Bounds.Extends[0][2] > Bounds.Extends[1][axis] - Bounds.Extends[0][axis]) axis = 2;
+                for (int axis = 0; axis < 3; axis++)
+                {
+                    float scale = (Bounds.Extends[1][axis] - Bounds.Extends[0][axis]) / planeCount;
+                    for (int i = 0; i < planeCount; i++)
+                    {
+                        float pos = Bounds.Extends[0][axis] + i * scale;
+                        float cost = EvaluateSAH(entities, pos, axis);   
+                        if(cost < bestCost)
+                        {
+                            bestCost = cost;
+                            bestPos = pos;
+                            bestAxis = axis;
+                        }
+                    }                    
+                }
+                
+                if(bestCost == FLT_MAX)
+                {
+                    bestAxis = 0;
+                    if(Bounds.Extends[1][1] - Bounds.Extends[0][1] > Bounds.Extends[1][0] - Bounds.Extends[0][0]) bestAxis = 1;
+                    if(Bounds.Extends[1][2] - Bounds.Extends[0][2] > Bounds.Extends[1][bestAxis] - Bounds.Extends[0][bestAxis]) bestAxis = 2;
 
-                c = Bounds.Center[axis];
+                    bestPos = Bounds.Center[bestAxis];
+                }
 
-                int mid = Split(entities, c, axis);
+                int mid = Split(entities, bestPos, bestAxis);
                 int rem = entities.size() - mid;
                 Left  = new BVHNode(entities.subspan(0, mid));
                 Right = new BVHNode(entities.subspan(mid, rem));
             }
         }
 
+        float EvaluateSAH(std::span<IRayCastable*> entities, float pos, int axis)
+        {
+            AABB left, right;
+            int lc = 0, rc = 0;
+            for (size_t i = 0; i < entities.size(); i++)
+            {
+                if(entities[i]->Bounds.Center[axis] < pos)
+                {
+                    left.Extend(entities[i]->Bounds);
+                    lc++;
+                }
+                else
+                {
+                    right.Extend(entities[i]->Bounds);
+                    rc++;
+                }
+            }
+            float cost = lc * left.Area() + rc * right.Area();
+            return cost > 0 ? cost : FLT_MAX;
+        }
+
         int Split(std::span<IRayCastable*> entities, float c, int axis)
         {
-            // int mid = 0;
-            // for(int i = 0; i < entities.size(); i++)
-            // {
-            //     if(entities[i]->Bounds.Center[axis] < c)
-            //     {
-            //         auto tmp = entities[i];
-            //         entities[i] = entities[mid];
-            //         entities[mid] = tmp;
-            //         mid++;
-            //     }
-            // }
             int i = 0;
             int j = entities.size() - 1;
             while (i <= j)
@@ -76,30 +107,6 @@ class BVHNode : public IRayCastable
                 mid = entities.size() / 2;
             }
             return mid;
-        }
-
-        int GetMaxAxis(std::span<IRayCastable*> entities, float* c)
-        {
-            float mins[3] {FLT_MAX, FLT_MAX, FLT_MAX};
-            float maxs[3] {FLT_MIN, FLT_MIN, FLT_MIN};
-            for (size_t i = 0; i < entities.size(); i++)
-            {
-                for (size_t j = 0; j < 3; j++)
-                {
-                    mins[j] = std::min(mins[j], entities[i]->Bounds.Extends[0][j]);   
-                    maxs[j] = std::max(maxs[j], entities[i]->Bounds.Extends[1][j]); 
-                }                
-            }            
-            float d0 = maxs[0] - mins[0];
-            float d1 = maxs[1] - mins[1];
-            float d2 = maxs[2] - mins[2];
-
-            int axis = 0;
-            if(d1 > d0 && d1 > d2) axis = 1;
-            if(d2 > d0 && d2 > d1) axis = 2;
-
-            *c = (maxs[axis] + mins[axis]) / 2;
-            return axis;
         }
 
         virtual bool RayCast(const Ray& ray, RayHit* hit) override
