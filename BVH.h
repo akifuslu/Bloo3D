@@ -6,12 +6,21 @@
 #include <span>
 #include <algorithm>
 #include <iostream>
+#include <future>
+
+#define LOGVEC3(x) std::cout << x[0] << " , " << x[1] << " , " << x[2] << std::endl;
 
 class BVHNode : public IRayCastable 
 {
     public:
         BVHNode(std::span<IRayCastable*> entities)
         {
+            Bounds = AABB(entities[0]->Bounds);
+            for(int i = 0; i < entities.size(); i++)
+            {
+                Bounds.Extend(entities[i]->Bounds);
+            }
+            
             if(entities.size() == 1)
             {
                 Left = entities[0];
@@ -25,34 +34,45 @@ class BVHNode : public IRayCastable
             else
             {
                 float c;
-                int axis = GetMaxAxis(entities, &c);
-                //std::cout << axis << std::endl;
+                int axis = 0; //GetMaxAxis(entities, &c);
+
+                if(Bounds.Extends[1][1] - Bounds.Extends[0][1] > Bounds.Extends[1][0] - Bounds.Extends[0][0]) axis = 1;
+                if(Bounds.Extends[1][2] - Bounds.Extends[0][2] > Bounds.Extends[1][axis] - Bounds.Extends[0][axis]) axis = 2;
+
+                c = Bounds.Center[axis];
+
                 int mid = Split(entities, c, axis);
                 int rem = entities.size() - mid;
                 Left  = new BVHNode(entities.subspan(0, mid));
                 Right = new BVHNode(entities.subspan(mid, rem));
             }
-            Bounds = AABB();
-            Bounds.Extend(Left->Bounds);
-            Bounds.Extend(Right->Bounds);
         }
 
         int Split(std::span<IRayCastable*> entities, float c, int axis)
         {
-            int mid = 0;
-            for(int i = 0; i < entities.size(); i++)
+            // int mid = 0;
+            // for(int i = 0; i < entities.size(); i++)
+            // {
+            //     if(entities[i]->Bounds.Center[axis] < c)
+            //     {
+            //         auto tmp = entities[i];
+            //         entities[i] = entities[mid];
+            //         entities[mid] = tmp;
+            //         mid++;
+            //     }
+            // }
+            int i = 0;
+            int j = entities.size() - 1;
+            while (i <= j)
             {
-                if(entities[i]->Bounds.Center[axis] < c)
-                {
-                    auto tmp = entities[i];
-                    entities[i] = entities[mid];
-                    entities[mid] = tmp;
-                    mid++;
-                }
+                if (entities[i]->Bounds.Center[axis] < c)
+                    i++;
+                else
+                    std::swap( entities[i], entities[j--] );
             }
+            int mid = i;
             if(mid == 0 || mid == entities.size())
             { 
-                //std::cout << "SEX" << std::endl;
                 mid = entities.size() / 2;
             }
             return mid;

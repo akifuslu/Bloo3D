@@ -11,9 +11,7 @@ struct AABB
 
     AABB()
     {
-        Extends[0] = glm::vec3(FLT_MAX, FLT_MAX, FLT_MAX);
-        Extends[1] = glm::vec3(FLT_MIN, FLT_MIN, FLT_MIN);
-        Center = glm::vec3(0);
+        
     }
 
     AABB(const AABB& other)

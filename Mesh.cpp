@@ -29,8 +29,7 @@ void Mesh::BuildBVH()
         rtris.push_back(_tris[i]);
     }    
     _bvh = new BVHNode(rtris);
-    Bounds = AABB();
-    Bounds.Extend(_bvh->Bounds);
+    Bounds = AABB(_bvh->Bounds);
 }
 
 bool Triangle::RayCast(const Ray& ray, RayHit* hit)
