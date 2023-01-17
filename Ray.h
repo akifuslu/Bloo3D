@@ -7,10 +7,12 @@ struct RayHit
     glm::vec3 Point;
     glm::vec3 Normal;
     float Distance;
+    int MatIndex;
 
     RayHit()
     {
         Distance = FLT_MAX;
+        MatIndex = -1;
     }
 };
 

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(BlooRay VERSION 0.1.0)
 
 set (CMAKE_CXX_STANDARD 20)
-set (CMAKE_CXX_FLAGS "-Ofast")
+set (CMAKE_CXX_FLAGS "-O0")
 
 
 set (SRC 
@@ -11,6 +11,7 @@ set (SRC
         Camera.cpp
         Mesh.cpp
         PointLight.cpp
+        Material.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp

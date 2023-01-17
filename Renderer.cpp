@@ -3,12 +3,13 @@
 #include "Camera.h"
 #include "Ray.h"
 #include "PointLight.h"
+#include "Material.h"
 
 #include <iostream>
 #include <future>
 #include <thread>
 
-Renderer::Renderer(std::shared_ptr<Camera> camera, unsigned char* buffer, int width, int height)
+Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height)
 {
     _camera = camera;
     _buffer = buffer;
@@ -32,6 +33,7 @@ void AssignRGBA(unsigned char* pixel, unsigned char r, unsigned char g, unsigned
 
 void AssignRGBFromVec3(unsigned char* pixel, glm::vec3 color)
 {
+    color *= 255.0f;
     color = glm::clamp(color, 0.0f, 255.0f);
     pixel[0] = color.r;
     pixel[1] = color.g;
@@ -39,14 +41,22 @@ void AssignRGBFromVec3(unsigned char* pixel, glm::vec3 color)
     pixel[3] = 255;
 }
 
-void Renderer::AddMesh(std::shared_ptr<Mesh> mesh)
+int Renderer::AddMesh(Mesh* mesh)
 {
     _meshes.push_back(mesh);
+    return _meshes.size() - 1;
 }
 
-void Renderer::AddLight(std::shared_ptr<PointLight> light)
+int Renderer::AddLight(PointLight* light)
 {
     _lights.push_back(light);
+    return _lights.size() - 1;
+}
+
+int Renderer::AddMaterial(MaterialBase* mat)
+{
+    _mats.push_back(mat);
+    return _mats.size() - 1;
 }
 
 void Renderer::Refresh()
@@ -110,6 +120,29 @@ void Renderer::Render()
     });
 }
 
+glm::vec3 Renderer::GetFragColor(const RayHit& frag)
+{
+    glm::vec3 color(0.0f);
+    if(frag.MatIndex == -1) // no material assigned
+    {
+        return color;
+    }
+
+    for (size_t i = 0; i < _lights.size(); i++)
+    {
+        glm::vec3 lightDir = normalize(_lights[i]->GetPos() - frag.Point);
+        // shadow check here
+        glm::vec3 luminance = _lights[i]->GetLuminance(frag.Point);
+        color += _mats[frag.MatIndex]->Shade({
+            .Normal = frag.Normal,
+            .LightDir = lightDir,
+            .Luminance = luminance
+        });
+    }
+    
+    return color;
+}
+
 void Renderer::RenderInternal()
 {
     while(_pixelIndex < _size)
@@ -122,16 +155,7 @@ void Renderer::RenderInternal()
         RayHit hit;
         if(RayCast(ray, &hit))
         {
-            glm::vec3 color(0);
-            for (size_t k = 0; k < _lights.size(); k++)
-            {
-                glm::vec3 lightDir = normalize(_lights[k]->GetPos() - hit.Point);
-                glm::vec3 luminance = _lights[k]->GetLuminance(hit.Point);
-                // DIFFUSE
-                float teta = dot(lightDir, hit.Normal);
-                teta = teta < 0 ? 0 : teta;
-                color += luminance * teta * 255.0f;                                                
-            }
+            auto color = GetFragColor(hit);
             AssignRGBFromVec3(_buffer + index * 4, color);
         }
         else

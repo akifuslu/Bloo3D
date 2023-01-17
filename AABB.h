@@ -3,6 +3,7 @@
 #include "Ray.h"
 #include "glm/glm.hpp"
 #include <algorithm>
+#include <limits>
 
 struct AABB
 {
@@ -11,8 +12,8 @@ struct AABB
 
     AABB()
     {
-        Extends[0] = glm::vec3(FLT_MAX);
-        Extends[1] = glm::vec3(FLT_MIN);
+        Extends[0] = glm::vec3(std::numeric_limits<float>::max());
+        Extends[1] = glm::vec3(std::numeric_limits<float>::lowest());
     }
 
     AABB(const AABB& other)
@@ -56,7 +57,7 @@ struct AABB
 
     bool Test(const Ray& ray)
     {
-        float imin = FLT_MIN;
+        float imin = -FLT_MAX;
         float imax = FLT_MAX;
         float t0 = (Extends[ray.Sign[0]].x - ray.Orig.x) * ray.InvDir.x;
         float t1 = (Extends[1 - ray.Sign[0]].x - ray.Orig.x) * ray.InvDir.x;

@@ -4,6 +4,7 @@
 #include "Importer.h"
 #include "Camera.h"
 #include "PointLight.h"
+#include "Material.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -119,25 +120,30 @@ int main(void)
 
     glm::vec3 camPos(0, 0, -5);
     glm::vec3 camRot(0, 0, 0);
-    std::shared_ptr<Camera> camera = std::make_shared<Camera>(
+    std::unique_ptr<Camera> camera = std::make_unique<Camera>(
         camPos,
         camRot,
         60,
         glm::ivec2(width, height)
     );
     // create renderer
-    Renderer renderer(camera, tex, width, height);
+    Renderer renderer(camera.get(), tex, width, height);
 
-    std::shared_ptr<Mesh> mesh = std::make_shared<Mesh>();
-    Importer::Import("res/tower.obj", mesh);
+    std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
+    Importer::Import("res/monkey.obj", mesh.get());
     mesh->BuildBVH();
-    renderer.AddMesh(mesh);
+    renderer.AddMesh(mesh.get());
 
-    std::shared_ptr<PointLight> light = std::make_shared<PointLight>(glm::vec3(50, 50, 0), glm::vec3(1, 0, 0), 3000);
-    std::shared_ptr<PointLight> light2 = std::make_shared<PointLight>(glm::vec3(-50, 50, -30), glm::vec3(0, 0, 1), 3000);
+    std::unique_ptr<MaterialDiffuse> difMat = std::make_unique<MaterialDiffuse>();
+    difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    difMat->Albedo = glm::vec3(0.0f, 0.25f, 0.75f);
 
-    renderer.AddLight(light);
-    renderer.AddLight(light2);
+    int matIndex = renderer.AddMaterial(difMat.get());
+    mesh->MaterialIndex = matIndex;
+
+    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(5, 5, -5), glm::vec3(1, 1, 1), 100);
+
+    renderer.AddLight(light.get());
 
     renderer.Render();
 

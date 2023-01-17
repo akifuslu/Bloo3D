@@ -35,7 +35,7 @@ class BVHNode : public IRayCastable
             {
                 float bestPos, bestCost = FLT_MAX;
                 int bestAxis = -1;                
-                int planeCount = 100;
+                int planeCount = 4;
 
                 for (int axis = 0; axis < 3; axis++)
                 {

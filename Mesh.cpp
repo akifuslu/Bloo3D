@@ -15,6 +15,7 @@ Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
 
 Mesh::Mesh()
 {
+    MaterialIndex = -1;
 }
 
 Mesh::~Mesh()
@@ -64,7 +65,12 @@ bool Triangle::RayCast(const Ray& ray, RayHit* hit)
 
 bool Mesh::RayCast(const Ray& ray, RayHit* hit) 
 {
-    return _bvh->RayCast(ray, hit);
+    bool f = _bvh->RayCast(ray, hit);
+    if(f)
+    {
+        hit->MatIndex = MaterialIndex;
+    }
+    return f;
 }
 
 void Mesh::AddVertex(glm::vec3 pos) 

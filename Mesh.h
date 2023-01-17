@@ -42,6 +42,7 @@ class Mesh : public IRayCastable
         virtual bool RayCast(const Ray& ray, RayHit* hit) override;
         void AddVertex(glm::vec3 pos);
         void AddTriangle(int i, int j, int k);
+        int MaterialIndex;
     private:
         std::vector<Vertex*> _verts;
         std::vector<Triangle*> _tris;
