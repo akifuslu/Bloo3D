@@ -78,7 +78,11 @@ bool Mesh::RayCast(const Ray& ray, RayHit* hit)
         hit->MatIndex = MaterialIndex;
         if(_parent != nullptr)
         {
+            // convert surface properties to world space
             hit->Point = _parent->LocalToWorld() * glm::vec4(hit->Point, 1.0f);   
+            // converting normals actually transpose(inverse(localToWorld))
+            // inverse of localToWorld is just worldToLocal
+            hit->Normal = normalize(transpose(_parent->WorldToLocal()) * glm::vec4(hit->Normal, 0.0f)); 
         }
     }
     return f;
