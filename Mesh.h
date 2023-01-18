@@ -8,6 +8,7 @@
 
 class Ray;
 class RayHit;
+class Object;
 
 struct Vertex
 {
@@ -43,8 +44,11 @@ class Mesh : public IRayCastable
         void AddVertex(glm::vec3 pos);
         void AddTriangle(int i, int j, int k);
         int MaterialIndex;
+        void SetParent(Object* parent);
+        Object* GetParent() const;
     private:
         std::vector<Vertex*> _verts;
         std::vector<Triangle*> _tris;
         BVHNode* _bvh;
+        Object* _parent;
 };

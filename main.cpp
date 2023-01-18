@@ -5,6 +5,8 @@
 #include "Camera.h"
 #include "PointLight.h"
 #include "Material.h"
+#include "Object.h"
+#include "ObjectInspector.h"
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
@@ -147,6 +149,14 @@ int main(void)
 
     renderer.Render();
 
+    // inspector
+    std::unique_ptr<Object> obj = std::make_unique<Object>("object");
+    std::unique_ptr<ObjectInspector> insp = std::make_unique<ObjectInspector>();
+
+    insp->Bind(obj.get());
+
+    mesh->SetParent(obj.get());
+
     // imgui setup
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
@@ -205,6 +215,11 @@ int main(void)
         if(ImGui::DragFloat3("rot", &camRot[0]))
         {
             camera->SetRotation(camRot);
+            renderer.Refresh();
+        }
+
+        if(insp->OnGUI())
+        {
             renderer.Refresh();
         }
 

@@ -12,6 +12,8 @@ set (SRC
         Mesh.cpp
         PointLight.cpp
         Material.cpp
+        Object.cpp
+        ObjectInspector.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp
