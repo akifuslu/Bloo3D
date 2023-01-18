@@ -10,7 +10,17 @@ Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
     _v0v1 = v1->Pos - v0->Pos;
     _v0v2 = v2->Pos - v0->Pos;
 
-    Normal = normalize(cross(_v0v1, _v0v2));
+    if(v0->HasNormal && v1->HasNormal && v2->HasNormal)
+    {
+        Smooth = true;
+        _v0v1N = v1->Normal - v0->Normal;
+        _v0v2N = v2->Normal - v0->Normal;
+    }
+    else
+    {
+        Smooth = false;
+        Normal = normalize(cross(_v0v1, _v0v2));
+    }
     Bounds = AABB(_v0->Pos, _v1->Pos, _v2->Pos);
 }
 
@@ -61,7 +71,14 @@ bool Triangle::RayCast(const Ray& ray, RayHit* hit)
     }
     hit->Distance = t;
     hit->Point = _v0->Pos + u * _v0v1 + v * _v0v2;
-    hit->Normal = Normal;
+    if(Smooth)
+    {
+        hit->Normal = normalize(_v0->Normal + u * _v0v1N + v * _v0v2N);
+    }
+    else
+    {
+        hit->Normal = Normal;
+    }
     return true;
 }
 
@@ -91,6 +108,12 @@ bool Mesh::RayCast(const Ray& ray, RayHit* hit)
 void Mesh::AddVertex(glm::vec3 pos) 
 {
     Vertex* vert = new Vertex(pos);
+    _verts.push_back(vert);   
+}
+
+void Mesh::AddVertex(glm::vec3 pos, glm::vec3 norm) 
+{
+    Vertex* vert = new Vertex(pos, norm);
     _verts.push_back(vert);   
 }
 

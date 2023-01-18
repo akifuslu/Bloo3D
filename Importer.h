@@ -14,7 +14,15 @@ namespace Importer
         for (size_t i = 0; i < aimesh->mNumVertices; i++)
         {
             auto vert = aimesh->mVertices[i];
-            mesh->AddVertex(glm::vec3(vert.x, vert.y, vert.z));
+            if(aimesh->HasNormals())
+            {
+                auto norm = aimesh->mNormals[i];
+                mesh->AddVertex({vert.x, vert.y, vert.z}, {norm.x, norm.y, norm.z});
+            }
+            else
+            {
+                mesh->AddVertex({vert.x, vert.y, vert.z});
+            }
         }
         
         for (size_t i = 0; i < aimesh->mNumFaces; i++)
