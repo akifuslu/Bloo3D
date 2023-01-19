@@ -7,65 +7,26 @@
 #include "Material/Material.h"
 #include "Scene/Object.h"
 #include "UI/ObjectInspector.h"
+#include "Window.h"
+
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 
 #include <GL/glew.h>
-#include <GLFW/glfw3.h>
 #include <iostream>
 #include <chrono>
 #include <future>
 #include <memory>
 
-static void error_callback(int error, const char* description)
-{
-    fprintf(stderr, "Error: %s\n", description);
-}
- 
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-{
-    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, GLFW_TRUE);
-}
-
-
-void Init(GLFWwindow*& window, int width, int height)
-{
-    glfwSetErrorCallback(error_callback);
- 
-    if (!glfwInit())
-        exit(EXIT_FAILURE);
- 
-    glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 1);
-    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);    
-    glfwWindowHint(GLFW_DOUBLEBUFFER, GL_TRUE);
- 
-    window = glfwCreateWindow(width, height, "Simple example", NULL, NULL);
-    if (!window)
-    {
-        glfwTerminate();
-        exit(EXIT_FAILURE);
-    }
- 
-    glfwSetKeyCallback(window, key_callback);
- 
-    glfwMakeContextCurrent(window);
-    glfwSwapInterval(1);
- 
-    glewInit();
-}
 
 int main(void)
 {
-    int width = 800;
-    int height = 600;
-    GLFWwindow* window;
+    std::unique_ptr<Window> window = std::make_unique<Window>(WindowProps{
+        .Title = "Bloo3D"
+    });
 
-    Init(window, width, height);
+    glewInit();
 
     float pos[] = {
         -1.0f,  1.0f, 0.0f, 0.0f, // ul
@@ -111,14 +72,14 @@ int main(void)
     //int twidth, theight, channels;
     //unsigned char* tex = ImageLoader::Load("res/Placeholder.jpg", twidth, theight, channels);
 
-    unsigned char* tex = (unsigned char*)malloc(width * height * 4 * sizeof(unsigned int));
+    unsigned char* tex = (unsigned char*)malloc(window->GetWidth() * window->GetHeight() * 4 * sizeof(unsigned int));
     // create to
     unsigned int to;
     glGenTextures(1, &to);
     glBindTexture(GL_TEXTURE_2D, to);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, window->GetWidth(), window->GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     glm::vec3 camPos(0, 0, -5);
     glm::vec3 camRot(0, 0, 0);
@@ -126,10 +87,10 @@ int main(void)
         camPos,
         camRot,
         60,
-        glm::ivec2(width, height)
+        glm::ivec2(window->GetWidth(), window->GetHeight())
     );
     // create renderer
-    Renderer renderer(camera.get(), tex, width, height);
+    Renderer renderer(camera.get(), tex, window->GetWidth(), window->GetHeight());
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
     Importer::Import("res/monkey.obj", mesh.get());
@@ -180,12 +141,12 @@ int main(void)
 
     // Setup Platform/Renderer backends
     const char* glsl_version = "#version 410";
-    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplGlfw_InitForOpenGL(window->Get(), true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
     int frame = 0;
-    glViewport(0, 0, width, height);
-    while (!glfwWindowShouldClose(window))
+    glViewport(0, 0, window->GetWidth(), window->GetHeight());
+    while (!window->ShouldClose())
     {
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -193,25 +154,13 @@ int main(void)
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        auto time = std::chrono::high_resolution_clock().now();
-
         // render
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, tex);
+        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, window->GetWidth(), window->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, tex);
 
         // draw here
         glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
  
-        frame += 1;
-        auto deltaTime = std::chrono::duration<float>(std::chrono::high_resolution_clock().now() - time);
-
-        //std::cout << deltaTime.count() << std::endl;
-        // {
-        //     ImGui::Begin("Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        //     ImGui::Text(std::to_string(deltaTime.count()).c_str());
-        //     ImGui::End();
-        // }
-
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
 
         if(ImGui::Button("Force Refresh"))
         {
@@ -256,8 +205,7 @@ int main(void)
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-        glfwSwapBuffers(window);
-        glfwPollEvents();
+        window->SwapBuffers();
     }
  
     // cleanup
@@ -266,8 +214,7 @@ int main(void)
     glDeleteBuffers(1, &ibo);
     glDeleteTextures(1, &to);
     free(tex);
+    window->Shutdown();
 
-    glfwDestroyWindow(window);
-    glfwTerminate();
     exit(EXIT_SUCCESS);
 }

@@ -7,6 +7,7 @@ set (CMAKE_CXX_FLAGS "-O3")
 
 set (SRC 
         src/main.cpp
+        src/Window.cpp
         src/Renderer/Renderer.cpp
         src/Camera/Camera.cpp
         src/Geometry/Mesh.cpp
