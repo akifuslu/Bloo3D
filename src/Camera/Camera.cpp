@@ -1,6 +1,6 @@
 #include "Camera.h"
 
-#include "Ray.h"
+#include "Geometry/Ray.h"
 #include "glm/matrix.hpp"
 #include "glm/gtx/transform.hpp"
 #include "glm/gtx/euler_angles.hpp"

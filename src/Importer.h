@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Mesh.h"
+#include "Geometry/Mesh.h"
 
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure

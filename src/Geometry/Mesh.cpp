@@ -1,7 +1,7 @@
 #include "Mesh.h"
 #include "Ray.h"
 #include "AABB.h"
-#include "Object.h"
+#include "Scene/Object.h"
 #include <span>
 
 Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)

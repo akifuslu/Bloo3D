@@ -1,10 +1,10 @@
 #pragma once
 
 #include "IRayCastable.h"
-
 #include "glm/glm.hpp"
-#include <vector>
 #include "BVH.h"
+
+#include <vector>
 
 class Ray;
 class RayHit;

@@ -1,9 +1,9 @@
 #include "Renderer.h"
-#include "Mesh.h"
-#include "Camera.h"
-#include "Ray.h"
-#include "PointLight.h"
-#include "Material.h"
+#include "Geometry/Mesh.h"
+#include "Camera/Camera.h"
+#include "Geometry/Ray.h"
+#include "Light/PointLight.h"
+#include "Material/Material.h"
 
 #include <iostream>
 #include <future>

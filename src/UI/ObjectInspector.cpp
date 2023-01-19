@@ -1,6 +1,6 @@
 #include "ObjectInspector.h"
 
-#include "Object.h"
+#include "Scene/Object.h"
 #include "imgui.h"
 
 bool ObjectInspector::ObjectInspector::OnGUI() 
