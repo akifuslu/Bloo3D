@@ -136,14 +136,24 @@ int main(void)
     mesh->BuildBVH();
     renderer.AddMesh(mesh.get());
 
-    std::unique_ptr<MaterialDiffuse> difMat = std::make_unique<MaterialDiffuse>();
+    // std::unique_ptr<MaterialDiffuse> difMat = std::make_unique<MaterialDiffuse>();
+    // difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    // difMat->Albedo = glm::vec3(0.0f, 0.25f, 0.75f);
+
+    // int matIndex = renderer.AddMaterial(difMat.get());
+    // mesh->MaterialIndex = matIndex;
+
+    std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
     difMat->Albedo = glm::vec3(0.0f, 0.25f, 0.75f);
+    difMat->Metallic = 0;
+    difMat->Roughness = .8f;
 
     int matIndex = renderer.AddMaterial(difMat.get());
     mesh->MaterialIndex = matIndex;
 
-    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(5, 5, -5), glm::vec3(1, 1, 1), 100);
+
+    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(5, 5, -5), glm::vec3(1, 1, 1), 1);
 
     renderer.AddLight(light.get());
 
@@ -217,6 +227,26 @@ int main(void)
             camera->SetRotation(camRot);
             renderer.Refresh();
         }
+
+        if(ImGui::SliderFloat("metallic", &difMat->Metallic, 0, 1))
+        {
+            renderer.Refresh();
+        }
+        if(ImGui::SliderFloat("roughness", &difMat->Roughness, 0, 1))
+        {
+            renderer.Refresh();
+        }
+        float lp = light->GetPower();
+        if(ImGui::SliderFloat("light power", &lp, 1, 100))
+        {
+            light->SetPower(lp);
+            renderer.Refresh();
+        }
+        if(ImGui::ColorPicker3("color", &difMat->Albedo[0]))
+        {
+            renderer.Refresh();
+        }
+
 
         if(insp->OnGUI())
         {

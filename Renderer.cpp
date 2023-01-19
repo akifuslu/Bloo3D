@@ -120,7 +120,7 @@ void Renderer::Render()
     });
 }
 
-glm::vec3 Renderer::GetFragColor(const RayHit& frag)
+glm::vec3 Renderer::GetFragColor(const Ray& ray, const RayHit& frag)
 {
     glm::vec3 color(0.0f);
     if(frag.MatIndex == -1) // no material assigned
@@ -134,9 +134,11 @@ glm::vec3 Renderer::GetFragColor(const RayHit& frag)
         // shadow check here
         glm::vec3 luminance = _lights[i]->GetLuminance(frag.Point);
         color += _mats[frag.MatIndex]->Shade({
-            .Normal = frag.Normal,
-            .LightDir = lightDir,
-            .Luminance = luminance
+            .Normal = normalize(frag.Normal),
+            .LightDir = normalize(lightDir),
+            .HalfDir = normalize(frag.Normal + lightDir),
+            .ViewDir = normalize(-ray.Dir),
+            .Radiance = luminance
         });
     }
     
@@ -155,7 +157,7 @@ void Renderer::RenderInternal()
         RayHit hit;
         if(RayCast(ray, &hit))
         {
-            auto color = GetFragColor(hit);
+            auto color = GetFragColor(ray, hit);
             AssignRGBFromVec3(_buffer + index * 4, color);
         }
         else

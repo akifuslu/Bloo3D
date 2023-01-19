@@ -26,7 +26,7 @@ class Renderer{
         bool RayCast(const Ray& ray, RayHit* hit);
         void Refresh();
     private:
-        glm::vec3 GetFragColor(const RayHit& frag);
+        glm::vec3 GetFragColor(const Ray& ray, const RayHit& frag);
         void RenderInternal();
         unsigned char* _buffer;
         int _width;
