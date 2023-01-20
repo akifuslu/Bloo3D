@@ -8,6 +8,11 @@
 #include "Scene/Object.h"
 #include "UI/ObjectInspector.h"
 #include "Window.h"
+#include "GPU/Buffer.h"
+#include "GPU/GL/GLVertexArray.h"
+#include "GPU/VertexBufferLayout.h"
+#include "GPU/Shader.h"
+#include "GPU/Texture.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -41,45 +46,57 @@ int main(void)
     };
 
     // create vao
-    unsigned int vao;
-    glGenVertexArrays(1, &vao);
-    glBindVertexArray(vao);
+    std::unique_ptr<GLVertexArray> va = std::make_unique<GLVertexArray>();
+    va->Bind();
 
     // create vbo
-    unsigned int vbo;
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 16 * sizeof(float), pos, GL_STATIC_DRAW);
-
+    std::unique_ptr<VertexBuffer> vb;
+    vb.reset(VertexBuffer::Create(pos, 16 * sizeof(float))); // for some reason makeunique does not work?!
+    vb->Bind();
     // create ibo
-    unsigned int ibo;
-    glGenBuffers(1, &ibo);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, 6 * sizeof(unsigned int), inds, GL_STATIC_DRAW);
+    std::unique_ptr<IndexBuffer> ib;
+    ib.reset(IndexBuffer::Create(inds, 6));
+    ib->Bind();
 
-    // positions
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-    // uvs
-    glEnableVertexAttribArray(1);
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
+    VertexBufferLayout layout;
+    layout.Push<float>(2);
+    layout.Push<float>(2);
+
+    va->AddBuffer(vb.get(), layout);
+
+    // // positions
+    // glEnableVertexAttribArray(0);
+    // glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
+    // // uvs
+    // glEnableVertexAttribArray(1);
+    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
 
     // create shader
-    unsigned int shader = ShaderLoader::Load("res/Default.shader");
-    glUseProgram(shader);
+    // unsigned int shader = ShaderLoader::Load("res/Default.shader");
+    // glUseProgram(shader);
+    std::unique_ptr<Shader> shader;
+    shader.reset(Shader::Create("res/Default.shader"));
+    shader->Bind();
 
     // load texture
     //int twidth, theight, channels;
     //unsigned char* tex = ImageLoader::Load("res/Placeholder.jpg", twidth, theight, channels);
 
-    unsigned char* tex = (unsigned char*)malloc(window->GetWidth() * window->GetHeight() * 4 * sizeof(unsigned int));
+    unsigned char* tex = (unsigned char*)malloc(window->GetWidth() * window->GetHeight() * 4 * sizeof(unsigned char));
     // create to
-    unsigned int to;
-    glGenTextures(1, &to);
-    glBindTexture(GL_TEXTURE_2D, to);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, window->GetWidth(), window->GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+
+    std::unique_ptr<Texture> to;
+    to.reset(Texture::Create({
+        .Unit = 0,
+        .Width = window->GetWidth(),
+        .Height = window->GetHeight()
+    }));
+    // unsigned int to;
+    // glGenTextures(1, &to);
+    // glBindTexture(GL_TEXTURE_2D, to);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
+    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
+    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, window->GetWidth(), window->GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     glm::vec3 camPos(0, 0, -5);
     glm::vec3 camRot(0, 0, 0);
@@ -92,17 +109,18 @@ int main(void)
     // create renderer
     Renderer renderer(camera.get(), tex, window->GetWidth(), window->GetHeight());
 
+    // try resize callback
+    // auto onResize = [tex](int w, int h) mutable
+    // {
+    //     tex = (unsigned char*)realloc(tex, w * h * 4 * sizeof(unsigned char));
+    // };
+    // window->SetResizeCallback(onResize);
+
+
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
     Importer::Import("res/monkey.obj", mesh.get());
     mesh->BuildBVH();
     renderer.AddMesh(mesh.get());
-
-    // std::unique_ptr<MaterialDiffuse> difMat = std::make_unique<MaterialDiffuse>();
-    // difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-    // difMat->Albedo = glm::vec3(0.0f, 0.25f, 0.75f);
-
-    // int matIndex = renderer.AddMaterial(difMat.get());
-    // mesh->MaterialIndex = matIndex;
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -155,10 +173,10 @@ int main(void)
         ImGui::NewFrame();
 
         // render
-        glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, window->GetWidth(), window->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, tex);
-
+        //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, window->GetWidth(), window->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, tex);
+        to->Write(tex);
         // draw here
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, nullptr);
+        glDrawElements(GL_TRIANGLES, ib->GetCount(), GL_UNSIGNED_INT, nullptr);
  
         //ImGui::ShowDemoWindow();
 
@@ -206,13 +224,10 @@ int main(void)
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         window->SwapBuffers();
+        window->Poll();
     }
  
     // cleanup
-    glDeleteVertexArrays(1, &vao);
-    glDeleteBuffers(1, &vbo);
-    glDeleteBuffers(1, &ibo);
-    glDeleteTextures(1, &to);
     free(tex);
     window->Shutdown();
 

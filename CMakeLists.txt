@@ -15,6 +15,15 @@ set (SRC
         src/Material/Material.cpp
         src/Scene/Object.cpp
         src/UI/ObjectInspector.cpp
+        src/GPU/Buffer.cpp        
+        src/GPU/VertexBufferLayout.cpp
+        src/GPU/Shader.cpp
+        src/GPU/Texture.cpp
+        src/GPU/GL/GLVertexBuffer.cpp
+        src/GPU/GL/GLIndexBuffer.cpp
+        src/GPU/GL/GLVertexArray.cpp
+        src/GPU/GL/GLShader.cpp
+        src/GPU/GL/GLTexture.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp

@@ -2,7 +2,7 @@
 
 #include <GLFW/glfw3.h>
 #include <string>
-
+#include <functional>
 
 struct WindowProps
 {
@@ -20,6 +20,8 @@ class Window
         void Shutdown();
         bool ShouldClose() const;
         void SwapBuffers() const;
+        void Poll() const;
+        void SetResizeCallback(const std::function<void(int, int)> f);
         inline GLFWwindow* Get() const
         {
             return _window;
@@ -39,4 +41,5 @@ class Window
         GLFWwindow* _window;
         int _width;
         int _height;
+        std::function<void(int, int)> _resizeCallback; 
 };

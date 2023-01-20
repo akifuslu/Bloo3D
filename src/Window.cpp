@@ -82,11 +82,21 @@ void Window::SwapBuffers() const
     glfwSwapBuffers(_window);
 }
 
+void Window::Poll() const
+{
+    glfwPollEvents();
+}
+
+void Window::SetResizeCallback(const std::function<void(int, int)> f)
+{
+    _resizeCallback = f;
+}
 
 void Window::OnResize(int width, int height)
 {
     _width = width;
     _height = height;
+    _resizeCallback(width, height);
 }
 
 void Window::OnKeyInput(int key, int scancode, int action, int mods)
