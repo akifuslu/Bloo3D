@@ -1,11 +1,8 @@
 #pragma once
 
 #include "glm/glm.hpp"
-#include <vector>
-#include <atomic>
-#include <future>
-#include <chrono>
-#include <memory>
+#include "BS_thread_pool.hpp"
+#include "pch.h"
 
 class Mesh;
 class Ray;
@@ -13,11 +10,12 @@ class RayHit;
 class Camera;
 class PointLight;
 class MaterialBase;
+class Texture;
 
 class Renderer{
 
     public:
-        Renderer(Camera* camera, unsigned char* buffer, int width, int height);
+        Renderer(Camera* camera, unsigned char* buffer, int width, int height, Texture* target);
         ~Renderer();
         int AddMesh(Mesh* mesh);
         int AddLight(PointLight* light);
@@ -43,4 +41,7 @@ class Renderer{
         volatile std::atomic_int _finishedThreads;
         std::future<void> _futureCompletion;
         std::vector<std::future<void>> _futures;
+        Texture* _target;
+
+        BS::thread_pool _pool;
 };

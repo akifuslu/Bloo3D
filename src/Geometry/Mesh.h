@@ -4,7 +4,7 @@
 #include "glm/glm.hpp"
 #include "BVH.h"
 
-#include <vector>
+#include "pch.h"
 
 class Ray;
 class RayHit;

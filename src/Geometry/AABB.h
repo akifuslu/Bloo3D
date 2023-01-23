@@ -2,8 +2,7 @@
 
 #include "Ray.h"
 #include "glm/glm.hpp"
-#include <algorithm>
-#include <limits>
+#include "pch.h"
 
 struct AABB
 {

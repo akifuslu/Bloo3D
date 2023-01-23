@@ -2,7 +2,7 @@
 #include "Ray.h"
 #include "AABB.h"
 #include "Scene/Object.h"
-#include <span>
+#include "pch.h"
 
 Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
     : _v0(v0), _v1(v1), _v2(v2)

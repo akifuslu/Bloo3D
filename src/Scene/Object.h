@@ -2,9 +2,7 @@
 
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
-#include <string>
-#include <vector>
-#include <utility>
+#include "pch.h"
 
 enum class ObjectType
 {

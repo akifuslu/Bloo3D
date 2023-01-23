@@ -1,7 +1,5 @@
 #include "Window.h"
 
-#include <assert.h>
-#include <iostream>
 
 static bool s_GLFWInitialized = false;
 
@@ -61,9 +59,9 @@ void Window::Init(const WindowProps& props)
         ((Window*)glfwGetWindowUserPointer(w))->OnMouseInput(b, a, m);
     };
 
-    glfwSetFramebufferSizeCallback(_window, resizeCB);
-    glfwSetKeyCallback(_window, keyCB);
-    glfwSetMouseButtonCallback(_window, mouseCB);
+    // glfwSetFramebufferSizeCallback(_window, resizeCB);
+    // glfwSetKeyCallback(_window, keyCB);
+    // glfwSetMouseButtonCallback(_window, mouseCB);
 }
 
 void Window::Shutdown()
@@ -96,7 +94,7 @@ void Window::OnResize(int width, int height)
 {
     _width = width;
     _height = height;
-    _resizeCallback(width, height);
+    //_resizeCallback(width, height);
 }
 
 void Window::OnKeyInput(int key, int scancode, int action, int mods)

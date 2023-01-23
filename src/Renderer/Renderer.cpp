@@ -4,18 +4,19 @@
 #include "Geometry/Ray.h"
 #include "Light/PointLight.h"
 #include "Material/Material.h"
+#include "GPU/Texture.h"
 
-#include <iostream>
-#include <future>
-#include <thread>
 
-Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height)
+Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height, Texture* target)
 {
+    _target = target;
     _camera = camera;
     _buffer = buffer;
     _width = width;
     _height = height;
     _size = _width * _height;
+
+//    _pool.reset()
 }
 
 Renderer::~Renderer()
@@ -95,29 +96,21 @@ void Renderer::Render()
     _onRender = true;
     _pixelIndex = 0;
     _finishedThreads = 0;
-    int cores = std::thread::hardware_concurrency();
+    int cores = std::thread::hardware_concurrency() - 1;
     while(cores--)
     {
-        _futures.push_back(std::async(&Renderer::RenderInternal, this));
+        //_futures.push_back(std::async(&Renderer::RenderInternal, this));
+        _pool.push_task(&Renderer::RenderInternal, this);
     }
-
-    auto time = std::chrono::high_resolution_clock().now();
-    _futureCompletion = std::async([=, start = time]()
-    {
-        while(true)
-        {
-            if(_finishedThreads == _futures.size())
-            {
-                _futures.clear();
-                _onRender = false;
-                std::chrono::duration<double, std::milli> deltaTime = std::chrono::high_resolution_clock().now() - start;
-                std::cout << "Render Finished" << std::endl;
-                std::cout << deltaTime.count() << "ms" << std::endl;
-                break;
-            }
-        }
-
-    });
+    auto starttime = std::chrono::high_resolution_clock().now();
+    //_futures.clear();
+    _pool.wait_for_tasks();
+    _onRender = false;
+    _target->Write(_buffer);
+    auto endtime = std::chrono::high_resolution_clock().now();
+    std::chrono::duration<double, std::milli> deltaTime = endtime - starttime;
+    std::cout << "Render Finished" << std::endl;
+    std::cout << deltaTime.count() << "ms" << std::endl;
 }
 
 glm::vec3 Renderer::GetFragColor(const Ray& ray, const RayHit& frag)

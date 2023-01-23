@@ -1,12 +1,7 @@
 #pragma once
 
 #include "IRayCastable.h"
-#include <memory>
-#include <vector>
-#include <span>
-#include <algorithm>
-#include <iostream>
-#include <future>
+#include "pch.h"
 
 #define LOGVEC3(x) std::cout << x[0] << " , " << x[1] << " , " << x[2] << std::endl;
 

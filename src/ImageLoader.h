@@ -2,7 +2,7 @@
 
 #include "stb_image.h"
 
-#include<string>
+#include "pch.h"
 
 namespace ImageLoader
 {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "AABB.h"
-#include <memory>
+#include "pch.h"
 
 class Ray;
 class RayHit;

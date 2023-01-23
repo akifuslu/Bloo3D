@@ -3,8 +3,7 @@
 #include "glm/glm.hpp"
 #include "GPU/Shader.h"
 
-#include<string>
-#include<unordered_map>
+#include "pch.h"
 
 class GLShader : public Shader
 {

@@ -2,9 +2,7 @@
 
 #include "GL/glew.h"
 
-#include<iostream>
-#include<sstream>
-#include<fstream>
+#include "pch.h"
 
 namespace ShaderLoader
 {

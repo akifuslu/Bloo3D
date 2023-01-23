@@ -21,12 +21,7 @@ struct Ray
     glm::vec3 Orig;
     glm::vec3 Dir;
     glm::vec3 InvDir;
-    int Sign[3];
-
-    Ray()
-    {
-
-    }
+    glm::ivec3 Sign;
 
     Ray(glm::vec3 orig, glm::vec3 dir)
     {

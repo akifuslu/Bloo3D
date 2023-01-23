@@ -5,7 +5,7 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
-#include <string>
+#include "pch.h"
 
 namespace Importer
 {
@@ -51,19 +51,7 @@ namespace Importer
             std::cout << importer.GetErrorString() << std::endl;
             return false;
         }
-
-        auto mat = scene->mMaterials[0];        
-
-        for (size_t i = 0; i < mat->mNumProperties; i++)
-        {
-            std::cout << mat->mProperties[i]->mKey.C_Str() << std::endl;
-            //std::cout << mat->Get(mat->mProperties[i]->mKey, )
-        }
-    
-        aiShadingMode smodel;
-        mat->Get(AI_MATKEY_SHADING_MODEL, smodel);
-        std::cout << smodel << std::endl;
-
+        
         auto msh = scene->mMeshes[0];
         ImportSingle(scene->mMeshes[0], mesh);
 

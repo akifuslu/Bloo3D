@@ -19,11 +19,7 @@
 #include "imgui_impl_opengl3.h"
 
 #include <GL/glew.h>
-#include <iostream>
-#include <chrono>
-#include <future>
-#include <memory>
-
+#include "pch.h"
 
 int main(void)
 {
@@ -64,26 +60,12 @@ int main(void)
 
     va->AddBuffer(vb.get(), layout);
 
-    // // positions
-    // glEnableVertexAttribArray(0);
-    // glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, 0);
-    // // uvs
-    // glEnableVertexAttribArray(1);
-    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(float) * 4, (void*)(sizeof(float) * 2));
-
-    // create shader
-    // unsigned int shader = ShaderLoader::Load("res/Default.shader");
-    // glUseProgram(shader);
     std::unique_ptr<Shader> shader;
     shader.reset(Shader::Create("res/Default.shader"));
     shader->Bind();
 
-    // load texture
-    //int twidth, theight, channels;
-    //unsigned char* tex = ImageLoader::Load("res/Placeholder.jpg", twidth, theight, channels);
 
     unsigned char* tex = (unsigned char*)malloc(window->GetWidth() * window->GetHeight() * 4 * sizeof(unsigned char));
-    // create to
 
     std::unique_ptr<Texture> to;
     to.reset(Texture::Create({
@@ -91,12 +73,6 @@ int main(void)
         .Width = window->GetWidth(),
         .Height = window->GetHeight()
     }));
-    // unsigned int to;
-    // glGenTextures(1, &to);
-    // glBindTexture(GL_TEXTURE_2D, to);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
-    // glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
-    // glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, window->GetWidth(), window->GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
     glm::vec3 camPos(0, 0, -5);
     glm::vec3 camRot(0, 0, 0);
@@ -107,7 +83,7 @@ int main(void)
         glm::ivec2(window->GetWidth(), window->GetHeight())
     );
     // create renderer
-    Renderer renderer(camera.get(), tex, window->GetWidth(), window->GetHeight());
+    Renderer renderer(camera.get(), tex, window->GetWidth(), window->GetHeight(), to.get());
 
     // try resize callback
     // auto onResize = [tex](int w, int h) mutable
@@ -118,7 +94,7 @@ int main(void)
 
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
-    Importer::Import("res/monkey.obj", mesh.get());
+    Importer::Import("res/output.obj", mesh.get());
     mesh->BuildBVH();
     renderer.AddMesh(mesh.get());
 
@@ -173,8 +149,8 @@ int main(void)
         ImGui::NewFrame();
 
         // render
-        //glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, window->GetWidth(), window->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, tex);
-        to->Write(tex);
+        // glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, window->GetWidth(), window->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, tex);
+        // to->Write(tex);
         // draw here
         glDrawElements(GL_TRIANGLES, ib->GetCount(), GL_UNSIGNED_INT, nullptr);
  

@@ -1,9 +1,7 @@
 #include "GLShader.h"
 #include "GL/glew.h"
 
-#include<iostream>
-#include<sstream>
-#include<fstream>
+#include "pch.h"
 
 unsigned int CreateShader(const std::string& source, int type)
 {
