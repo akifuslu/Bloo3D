@@ -59,9 +59,9 @@ void Window::Init(const WindowProps& props)
         ((Window*)glfwGetWindowUserPointer(w))->OnMouseInput(b, a, m);
     };
 
-    // glfwSetFramebufferSizeCallback(_window, resizeCB);
-    // glfwSetKeyCallback(_window, keyCB);
-    // glfwSetMouseButtonCallback(_window, mouseCB);
+    glfwSetFramebufferSizeCallback(_window, resizeCB);
+    glfwSetKeyCallback(_window, keyCB);
+    glfwSetMouseButtonCallback(_window, mouseCB);
 }
 
 void Window::Shutdown()
@@ -75,8 +75,9 @@ bool Window::ShouldClose() const
 {
     return glfwWindowShouldClose(_window);
 }
-void Window::SwapBuffers() const
+void Window::SwapBuffers()
 {
+    _resized = false;
     glfwSwapBuffers(_window);
 }
 
@@ -85,16 +86,11 @@ void Window::Poll() const
     glfwPollEvents();
 }
 
-void Window::SetResizeCallback(const std::function<void(int, int)> f)
-{
-    _resizeCallback = f;
-}
-
 void Window::OnResize(int width, int height)
 {
     _width = width;
     _height = height;
-    //_resizeCallback(width, height);
+    _resized = true;
 }
 
 void Window::OnKeyInput(int key, int scancode, int action, int mods)

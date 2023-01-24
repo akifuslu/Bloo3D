@@ -32,6 +32,14 @@ Mesh::Mesh()
 
 Mesh::~Mesh()
 {
+    for (size_t i = 0; i < _verts.size(); i++)
+    {
+        delete _verts[i];
+    }
+    for (size_t i = 0; i < _tris.size(); i++)
+    {
+        delete _tris[i];
+    }    
 }
 
 void Mesh::BuildBVH()

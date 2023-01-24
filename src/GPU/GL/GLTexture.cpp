@@ -33,3 +33,10 @@ void GLTexture::Write(unsigned char* pixels)
     Bind(0);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, _width, _height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 }
+
+void GLTexture::Resize(int width, int height)
+{
+    _width = width;
+    _height = height;
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, _width, _height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+}

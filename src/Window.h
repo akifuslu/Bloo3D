@@ -18,9 +18,8 @@ class Window
         void Init(const WindowProps& props);
         void Shutdown();
         bool ShouldClose() const;
-        void SwapBuffers() const;
+        void SwapBuffers();
         void Poll() const;
-        void SetResizeCallback(const std::function<void(int, int)> f);
         inline GLFWwindow* Get() const
         {
             return _window;
@@ -33,6 +32,10 @@ class Window
         {
             return _height;
         }
+        inline bool IsResized() const
+        {
+            return _resized;
+        }
     private:
         void OnResize(int width, int height);
         void OnKeyInput(int key, int scancode, int action, int mods);
@@ -40,5 +43,5 @@ class Window
         GLFWwindow* _window;
         int _width;
         int _height;
-        std::function<void(int, int)> _resizeCallback; 
+        bool _resized;
 };

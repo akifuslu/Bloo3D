@@ -14,6 +14,7 @@ struct ShadeProperties
 class MaterialBase
 {
     public:
+        virtual ~MaterialBase() = default;
         virtual glm::vec3 Shade(const ShadeProperties& props)
         {
             return glm::vec3(0);
@@ -25,6 +26,7 @@ class MaterialBase
 class MaterialDiffuse : public MaterialBase
 {
     public:
+        virtual ~MaterialDiffuse() override{}
         virtual glm::vec3 Shade(const ShadeProperties& props) override;
 };
 
@@ -32,6 +34,7 @@ class MaterialDiffuse : public MaterialBase
 class MaterialPBR : public MaterialBase
 {
     public:
+        virtual ~MaterialPBR() override{}
         virtual glm::vec3 Shade(const ShadeProperties& props) override;
         float Metallic;
         float Roughness;

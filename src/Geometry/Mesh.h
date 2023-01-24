@@ -6,8 +6,8 @@
 
 #include "pch.h"
 
-class Ray;
-class RayHit;
+struct Ray;
+struct RayHit;
 class Object;
 
 struct Vertex
@@ -48,7 +48,7 @@ class Mesh : public IRayCastable
 {
     public:
         Mesh();
-        ~Mesh();
+        virtual ~Mesh() override;
         void BuildBVH();
         virtual bool RayCast(const Ray& ray, RayHit* hit) override;
         void AddVertex(glm::vec3 pos);

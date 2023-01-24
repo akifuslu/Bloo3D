@@ -7,21 +7,20 @@
 #include "GPU/Texture.h"
 
 
-Renderer::Renderer(Camera* camera, unsigned char* buffer, int width, int height, Texture* target)
+Renderer::Renderer(Camera* camera, Texture* target)
 {
     _target = target;
     _camera = camera;
-    _buffer = buffer;
-    _width = width;
-    _height = height;
-    _size = _width * _height;
-
-//    _pool.reset()
+    _buffer.resize(camera->GetWidth() * camera->GetHeight() * 4);
 }
 
 Renderer::~Renderer()
 {
-    
+}
+
+void Renderer::OnResize(int width, int height)
+{
+    _buffer.resize(width * height * 4);
 }
 
 void AssignRGBA(unsigned char* pixel, unsigned char r, unsigned char g, unsigned char b, unsigned char a)
@@ -95,18 +94,15 @@ void Renderer::Render()
     std::cout << "Render Started" << std::endl;
     _onRender = true;
     _pixelIndex = 0;
-    _finishedThreads = 0;
     int cores = std::thread::hardware_concurrency() - 1;
     while(cores--)
     {
-        //_futures.push_back(std::async(&Renderer::RenderInternal, this));
         _pool.push_task(&Renderer::RenderInternal, this);
     }
     auto starttime = std::chrono::high_resolution_clock().now();
-    //_futures.clear();
     _pool.wait_for_tasks();
     _onRender = false;
-    _target->Write(_buffer);
+    _target->Write(_buffer.data());
     auto endtime = std::chrono::high_resolution_clock().now();
     std::chrono::duration<double, std::milli> deltaTime = endtime - starttime;
     std::cout << "Render Finished" << std::endl;
@@ -140,23 +136,36 @@ glm::vec3 Renderer::GetFragColor(const Ray& ray, const RayHit& frag)
 
 void Renderer::RenderInternal()
 {
-    while(_pixelIndex < _size)
+    u_int32_t size = _camera->GetWidth() * _camera->GetHeight();
+    u_int32_t width = _camera->GetWidth();
+    while(true)
     {
-        int index = _pixelIndex++;
-        int x = index % _width;
-        int y = index / _width;                            
+        u_int32_t index = _pixelIndex++;
+        if(index >= size) // I AM STUPID (Tribute to charles leclerc) (There was a threading error here I was checking for this before incrementing the index)
+        {
+            return;
+        }
+        u_int32_t x = index % width;
+        u_int32_t y = index / width;                            
 
         auto ray = _camera->GetRay(x, y);
         RayHit hit;
         if(RayCast(ray, &hit))
         {
             auto color = GetFragColor(ray, hit);
-            AssignRGBFromVec3(_buffer + index * 4, color);
+            color *= 255.0f;
+            color = glm::clamp(color, 0.0f, 255.0f);
+            _buffer[index * 4] = color.x;
+            _buffer[index * 4 + 1] = color.y;
+            _buffer[index * 4 + 2] = color.z;
+            _buffer[index * 4 + 3] = 255;
         }
         else
         {
-            AssignRGBA(_buffer + index * 4, 0, 0, 0, 255);
+            _buffer[index * 4] = 0;
+            _buffer[index * 4 + 1] = 0;
+            _buffer[index * 4 + 2] = 0;
+            _buffer[index * 4 + 3] = 255;
         }
     }
-    _finishedThreads++;    
 }

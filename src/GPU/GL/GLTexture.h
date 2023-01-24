@@ -8,6 +8,7 @@ class GLTexture : public Texture
         GLTexture(const TextureProperties& props);
         virtual ~GLTexture() override;
         virtual void Write(unsigned char* pixels) override;
+        virtual void Resize(int width, int height) override;
         virtual void Bind(int unit) override;
         virtual void UnBind() override;
     private:

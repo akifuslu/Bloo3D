@@ -3,7 +3,7 @@
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
 
-class Ray;
+struct Ray;
 
 class Camera
 {
@@ -11,11 +11,21 @@ class Camera
         Camera(glm::vec3 pos, 
                glm::vec3 rot, 
                float fov,
-               glm::ivec2 res);
+               u_int32_t width,
+               u_int32_t height);
 
         Ray GetRay(int x, int y);
         void SetPosition(glm::vec3 pos);
         void SetRotation(glm::vec3 rot);
+        void OnResize(int width, int height);
+        inline u_int32_t GetWidth() const
+        {
+            return _width;
+        }
+        inline u_int32_t GetHeight() const
+        {
+            return _height;
+        }
     private:
         void RebuildMatrix();
         glm::mat4 _mat;
@@ -23,7 +33,8 @@ class Camera
         glm::vec3 _pos;
         glm::vec3 _rot;
         float _fov;
-        glm::ivec2 _res;
         float _scale;
         float _aspect;
+        u_int32_t _width;
+        u_int32_t _height;
 };

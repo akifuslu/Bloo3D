@@ -52,7 +52,7 @@ namespace Importer
             return false;
         }
         
-        auto msh = scene->mMeshes[0];
+        //auto msh = scene->mMeshes[0];
         ImportSingle(scene->mMeshes[0], mesh);
 
 
