@@ -1,6 +1,6 @@
 #include "ShaderLoader.h"
 #include "ImageLoader.h"
-#include "Renderer/Renderer.h"
+#include "Renderer/Raytracer.h"
 #include "Importer.h"
 #include "Camera/Camera.h"
 #include "Light/PointLight.h"
@@ -13,13 +13,15 @@
 #include "GPU/VertexBufferLayout.h"
 #include "GPU/Shader.h"
 #include "GPU/Texture.h"
+#include "Geometry/ScreenQuad.h"
+#include "Renderer/GLRenderer.h"
+#include "Scene/Scene.h"
 
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "Logger.h"
 
-#include <GL/glew.h>
 #include "pch.h"
 
 int main(void)
@@ -28,42 +30,10 @@ int main(void)
         .Title = "Bloo3D"
     });
 
-    glewInit();
+    std::unique_ptr<GLRenderer> renderer = std::make_unique<GLRenderer>();
 
-    float pos[] = {
-        -1.0f,  1.0f, 0.0f, 0.0f, // ul
-         1.0f,  1.0f, 1.0f, 0.0f, // ur
-         1.0f, -1.0f, 1.0f, 1.0f, // lr
-        -1.0f, -1.0f, 0.0f, 1.0f, // ll
-    };
-
-    unsigned int inds[] = {
-        0, 1, 2,
-        0, 2, 3
-    };
-
-    // create vao
-    std::unique_ptr<GLVertexArray> va = std::make_unique<GLVertexArray>();
-    va->Bind();
-
-    // create vbo
-    std::unique_ptr<VertexBuffer> vb;
-    vb.reset(VertexBuffer::Create(pos, 16 * sizeof(float))); // for some reason makeunique does not work?!
-    vb->Bind();
-    // create ibo
-    std::unique_ptr<IndexBuffer> ib;
-    ib.reset(IndexBuffer::Create(inds, 6));
-    ib->Bind();
-
-    VertexBufferLayout layout;
-    layout.Push<float>(2);
-    layout.Push<float>(2);
-
-    va->AddBuffer(vb.get(), layout);
-
-    std::unique_ptr<Shader> shader;
-    shader.reset(Shader::Create("res/Default.shader"));
-    shader->Bind();
+    renderer->SetMode(GLRenderMode::RAYTRACER);
+    renderer->OnResize(window->GetWidth(), window->GetHeight());
 
     std::unique_ptr<Texture> to;
     to.reset(Texture::Create({
@@ -82,12 +52,12 @@ int main(void)
         window->GetHeight()
     );
     // create renderer
-    Renderer renderer(camera.get(), to.get());
+    Raytracer raytracer(camera.get(), to.get());
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
-    Importer::Import("res/output.obj", mesh.get());
+    Importer::Import("res/cube.obj", mesh.get());
     mesh->BuildBVH();
-    renderer.AddMesh(mesh.get());
+    raytracer.AddMesh(mesh.get());
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -95,13 +65,13 @@ int main(void)
     difMat->Metallic = 0;
     difMat->Roughness = .8f;
 
-    int matIndex = renderer.AddMaterial(difMat.get());
+    int matIndex = raytracer.AddMaterial(difMat.get());
     mesh->MaterialIndex = matIndex;
 
 
-    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(5, 5, -5), glm::vec3(1, 1, 1), 1);
+    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(5, 5, -5), glm::vec3(1, 1, 1), 100);
 
-    renderer.AddLight(light.get());
+    raytracer.AddLight(light.get());
 
     // inspector
     std::unique_ptr<Object> obj = std::make_unique<Object>("object");
@@ -127,11 +97,10 @@ int main(void)
     ImGui_ImplGlfw_InitForOpenGL(window->Get(), true);
     ImGui_ImplOpenGL3_Init(glsl_version);
 
-    //int frame = 0;
+    Scene testScene;
     while (!window->ShouldClose())
     {
-        glClear(GL_COLOR_BUFFER_BIT);
-        glViewport(0, 0, window->GetWidth(), window->GetHeight());
+        renderer->Clear();
 
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -144,11 +113,11 @@ int main(void)
 
             to->Resize(window->GetWidth(), window->GetHeight());            
             camera->OnResize(window->GetWidth(), window->GetHeight());
-            renderer.OnResize(window->GetWidth(), window->GetHeight());
-            renderer.Render();
+            raytracer.OnResize(window->GetWidth(), window->GetHeight());
+            raytracer.Render();
         }
         // draw here
-        glDrawElements(GL_TRIANGLES, ib->GetCount(), GL_UNSIGNED_INT, nullptr);
+        renderer->Render(testScene);
  
         //ImGui::ShowDemoWindow();
         if(ImGui::DragFloat3("pos", &camPos[0]))
@@ -172,7 +141,7 @@ int main(void)
         if(ImGui::SliderFloat("light power", &lp, 1, 100))
         {
             light->SetPower(lp);
-            renderer.Render();
+            raytracer.Render();
         }
         if(ImGui::ColorPicker3("color", &difMat->Albedo[0]))
         {

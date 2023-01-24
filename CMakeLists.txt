@@ -8,9 +8,11 @@ set (CMAKE_CXX_FLAGS "-O3 -Wall")
 set (SRC 
         src/main.cpp
         src/Window.cpp
-        src/Renderer/Renderer.cpp
+        src/Renderer/Raytracer.cpp
+        src/Renderer/GLRenderer.cpp
         src/Camera/Camera.cpp
         src/Geometry/Mesh.cpp
+        src/Geometry/ScreenQuad.cpp
         src/Light/PointLight.cpp
         src/Material/Material.cpp
         src/Scene/Object.cpp

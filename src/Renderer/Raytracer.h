@@ -12,11 +12,11 @@ class PointLight;
 class MaterialBase;
 class Texture;
 
-class Renderer{
-
+class Raytracer
+{
     public:
-        Renderer(Camera* camera, Texture* target);
-        ~Renderer();
+        Raytracer(Camera* camera, Texture* target);
+        ~Raytracer();
         int AddMesh(Mesh* mesh);
         int AddLight(PointLight* light);
         int AddMaterial(MaterialBase* mat);
