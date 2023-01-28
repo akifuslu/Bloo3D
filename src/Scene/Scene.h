@@ -8,6 +8,6 @@ class Scene
 {
     public:
         Scene(){}
-        std::vector<Mesh*> Meshes;
-        std::vector<Light*> Lights;
+        std::vector<Mesh*> meshes;
+        std::vector<Light*> lights;
 };

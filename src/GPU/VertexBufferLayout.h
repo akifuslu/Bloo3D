@@ -4,10 +4,10 @@
 
 struct VertexBufferLayoutElement
 {
-    int Type;
-    int Count;
-    int Normalized;
-    int Size;
+    int type;
+    int count;
+    int normalized;
+    int size;
 };
 
 

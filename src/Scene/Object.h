@@ -17,13 +17,8 @@ class Object
 {
     public:
         Object() = default;
-        Object(const std::string& name) : Name(name) {}
-        std::string Name;
-        ObjectType Type;
-        inline Transform* GetTransform() const
-        {
-            return _transform.get();
-        }
-    private:
-        std::unique_ptr<Transform> _transform;
+        Object(const std::string& name) : name(name) {}
+        std::string name;
+        ObjectType type;
+        Transform transform;
 };

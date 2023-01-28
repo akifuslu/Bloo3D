@@ -12,18 +12,18 @@ struct RayHit;
 
 struct Vertex
 {
-    glm::vec3 Pos;
-    glm::vec3 Normal;
-    bool HasNormal;
+    glm::vec3 pos;
+    glm::vec3 normal;
+    bool hasNormal;
 
-    Vertex(const glm::vec3& pos) : Pos(pos)
+    Vertex(const glm::vec3& pos) : pos(pos)
     {
-        HasNormal = false;
+        hasNormal = false;
     }
 
-    Vertex(const glm::vec3& pos, const glm::vec3& norm) : Pos(pos), Normal(norm) 
+    Vertex(const glm::vec3& pos, const glm::vec3& norm) : pos(pos), normal(norm) 
     {
-        HasNormal = true;
+        hasNormal = true;
     }
 };
 
@@ -32,8 +32,8 @@ class Triangle : public IRayCastable
     public:
         Triangle(Vertex* v0, Vertex* v1, Vertex* v2);
         virtual bool RayCast(const Ray& ray, RayHit* hit) override;
-        glm::vec3 Normal;        
-        bool Smooth;
+        glm::vec3 normal;        
+        bool smooth;
     private:
         Vertex* _v0;
         Vertex* _v1;
@@ -54,7 +54,7 @@ class Mesh : public IRayCastable
         void AddVertex(glm::vec3 pos);
         void AddVertex(glm::vec3 pos, glm::vec3 norm);
         void AddTriangle(int i, int j, int k);
-        int MaterialIndex;
+        int materialIndex;
         Transform transform;
     private:
         std::vector<Vertex*> _verts;

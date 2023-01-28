@@ -61,7 +61,7 @@ bool Raytracer::RayCast(const Ray& ray, RayHit* hit)
         RayHit nhit;
         if(_meshes[i]->RayCast(ray, &nhit))
         {
-            if(nhit.Distance < hit->Distance)
+            if(nhit.distance < hit->distance)
             {
                 *hit = nhit;
                 hasHit = true;
@@ -94,22 +94,22 @@ void Raytracer::Render()
 glm::vec3 Raytracer::GetFragColor(const Ray& ray, const RayHit& frag)
 {
     glm::vec3 color(0.0f);
-    if(frag.MatIndex == -1) // no material assigned
+    if(frag.matIndex == -1) // no material assigned
     {
         return color;
     }
 
     for (size_t i = 0; i < _lights.size(); i++)
     {
-        glm::vec3 lightDir = normalize(_lights[i]->transform.GetLocation() - frag.Point);
+        glm::vec3 lightDir = normalize(_lights[i]->transform.GetLocation() - frag.point);
         // shadow check here
-        glm::vec3 luminance = _lights[i]->GetAttenuation(frag.Point);
-        color += _mats[frag.MatIndex]->Shade({
-            .Normal = normalize(frag.Normal),
-            .LightDir = normalize(lightDir),
-            .HalfDir = normalize(frag.Normal + lightDir),
-            .ViewDir = normalize(-ray.Dir),
-            .Radiance = luminance
+        glm::vec3 luminance = _lights[i]->GetAttenuation(frag.point);
+        color += _mats[frag.matIndex]->Shade({
+            .normal = normalize(frag.normal),
+            .lightDir = normalize(lightDir),
+            .halfDir = normalize(frag.normal + lightDir),
+            .viewDir = normalize(-ray.dir),
+            .radiance = luminance
         });
     }
     

@@ -4,11 +4,11 @@
 
 struct ShadeProperties
 {
-    glm::vec3 Normal;
-    glm::vec3 LightDir;
-    glm::vec3 HalfDir;
-    glm::vec3 ViewDir;
-    glm::vec3 Radiance;
+    glm::vec3 normal;
+    glm::vec3 lightDir;
+    glm::vec3 halfDir;
+    glm::vec3 viewDir;
+    glm::vec3 radiance;
 };
 
 class MaterialBase
@@ -19,8 +19,8 @@ class MaterialBase
         {
             return glm::vec3(0);
         }
-        glm::vec3 Ambient;
-        glm::vec3 Albedo;
+        glm::vec3 ambient;
+        glm::vec3 albedo;
 };
 
 class MaterialDiffuse : public MaterialBase
@@ -36,6 +36,6 @@ class MaterialPBR : public MaterialBase
     public:
         virtual ~MaterialPBR() override{}
         virtual glm::vec3 Shade(const ShadeProperties& props) override;
-        float Metallic;
-        float Roughness;
+        float metallic;
+        float roughness;
 };

@@ -7,26 +7,26 @@
 Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
     : _v0(v0), _v1(v1), _v2(v2)
 {
-    _v0v1 = v1->Pos - v0->Pos;
-    _v0v2 = v2->Pos - v0->Pos;
+    _v0v1 = v1->pos - v0->pos;
+    _v0v2 = v2->pos - v0->pos;
 
-    if(v0->HasNormal && v1->HasNormal && v2->HasNormal)
+    if(v0->hasNormal && v1->hasNormal && v2->hasNormal)
     {
-        Smooth = true;
-        _v0v1N = v1->Normal - v0->Normal;
-        _v0v2N = v2->Normal - v0->Normal;
+        smooth = true;
+        _v0v1N = v1->normal - v0->normal;
+        _v0v2N = v2->normal - v0->normal;
     }
     else
     {
-        Smooth = false;
-        Normal = normalize(cross(_v0v1, _v0v2));
+        smooth = false;
+        normal = normalize(cross(_v0v1, _v0v2));
     }
-    Bounds = AABB(_v0->Pos, _v1->Pos, _v2->Pos);
+    aabb = AABB(_v0->pos, _v1->pos, _v2->pos);
 }
 
 Mesh::Mesh()
 {
-    MaterialIndex = -1;
+    materialIndex = -1;
 }
 
 Mesh::~Mesh()
@@ -49,12 +49,12 @@ void Mesh::BuildBVH()
         rtris.push_back(_tris[i]);
     }    
     _bvh = new BVHNode(rtris);
-    Bounds = AABB(_bvh->Bounds);
+    aabb = AABB(_bvh->aabb);
 }
 
 bool Triangle::RayCast(const Ray& ray, RayHit* hit)
 {
-    auto pvec = cross(ray.Dir, _v0v2);
+    auto pvec = cross(ray.dir, _v0v2);
     float det = dot(_v0v1, pvec);
     if (std::fabs(det) < 1e-6)
     {            
@@ -62,13 +62,13 @@ bool Triangle::RayCast(const Ray& ray, RayHit* hit)
     }
 
     float invDet = 1.0 / det;
-    auto tvec = ray.Orig - _v0->Pos;
+    auto tvec = ray.orig - _v0->pos;
     float u = dot(tvec, pvec) * invDet;
     if (u < 0 || u > 1)
         return false;
 
     auto qvec = cross(tvec, _v0v1);
-    float v = dot(ray.Dir, qvec) * invDet;
+    float v = dot(ray.dir, qvec) * invDet;
     if (v < 0 || u + v > 1)
         return false;
     float t = dot(_v0v2, qvec) * invDet;
@@ -76,31 +76,31 @@ bool Triangle::RayCast(const Ray& ray, RayHit* hit)
     {
         return false;
     }
-    hit->Distance = t;
-    hit->Point = _v0->Pos + u * _v0v1 + v * _v0v2;
-    if(Smooth)
+    hit->distance = t;
+    hit->point = _v0->pos + u * _v0v1 + v * _v0v2;
+    if(smooth)
     {
-        hit->Normal = normalize(_v0->Normal + u * _v0v1N + v * _v0v2N);
+        hit->normal = normalize(_v0->normal + u * _v0v1N + v * _v0v2N);
     }
     else
     {
-        hit->Normal = Normal;
+        hit->normal = normal;
     }
     return true;
 }
 
 bool Mesh::RayCast(const Ray& ray, RayHit* hit) 
 {
-    Ray lray = Ray(transform.WorldToLocal() * glm::vec4(ray.Orig, 1.0f), normalize(transform.WorldToLocal() * glm::vec4(ray.Dir, 0.0f)));
+    Ray lray = Ray(transform.WorldToLocal() * glm::vec4(ray.orig, 1.0f), normalize(transform.WorldToLocal() * glm::vec4(ray.dir, 0.0f)));
     bool f = _bvh->RayCast(lray, hit);
     if(f)
     {
-        hit->MatIndex = MaterialIndex;
+        hit->matIndex = materialIndex;
         // convert surface properties to world space
-        hit->Point = transform.LocalToWorld() * glm::vec4(hit->Point, 1.0f);   
+        hit->point = transform.LocalToWorld() * glm::vec4(hit->point, 1.0f);   
         // converting normals actually transpose(inverse(localToWorld))
         // inverse of localToWorld is just worldToLocal
-        hit->Normal = normalize(transpose(transform.WorldToLocal()) * glm::vec4(hit->Normal, 0.0f)); 
+        hit->normal = normalize(transpose(transform.WorldToLocal()) * glm::vec4(hit->normal, 0.0f)); 
     }
     return f;
 }

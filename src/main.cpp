@@ -37,9 +37,9 @@ int main(void)
 
     std::unique_ptr<Texture> to;
     to.reset(Texture::Create({
-        .Unit = 0,
-        .Width = window->GetWidth(),
-        .Height = window->GetHeight()
+        .unit = 0,
+        .width = window->GetWidth(),
+        .height = window->GetHeight()
     }));
 
     glm::vec3 camPos(0, 0, -5);
@@ -61,13 +61,13 @@ int main(void)
     raytracer.AddMesh(mesh.get());
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
-    difMat->Ambient = glm::vec3(0.1f, 0.1f, 0.1f);
-    difMat->Albedo = glm::vec3(0.0f, 0.25f, 0.75f);
-    difMat->Metallic = 0;
-    difMat->Roughness = .8f;
+    difMat->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
+    difMat->albedo = glm::vec3(0.0f, 0.25f, 0.75f);
+    difMat->metallic = 0;
+    difMat->roughness = .8f;
 
     int matIndex = raytracer.AddMaterial(difMat.get());
-    mesh->MaterialIndex = matIndex;
+    mesh->materialIndex = matIndex;
 
 
     std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(1, 1, 1), 100);

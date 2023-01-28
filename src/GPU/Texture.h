@@ -2,10 +2,10 @@
 
 struct TextureProperties
 {
-    int Unit;
-    int Width;
-    int Height;
-    int NumChannels;
+    int unit;
+    int width;
+    int height;
+    int numChannels;
 };
 
 class Texture

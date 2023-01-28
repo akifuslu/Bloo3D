@@ -10,21 +10,21 @@ class BVHNode : public IRayCastable
     public:
         BVHNode(std::span<IRayCastable*> entities)
         {
-            Bounds = AABB(entities[0]->Bounds);
+            aabb = AABB(entities[0]->aabb);
             for(int i = 0; i < entities.size(); i++)
             {
-                Bounds.Extend(entities[i]->Bounds);
+                aabb.Extend(entities[i]->aabb);
             }
             
             if(entities.size() == 1)
             {
-                Left = entities[0];
-                Right = entities[0];
+                left = entities[0];
+                right = entities[0];
             }
             else if(entities.size() == 2)
             {
-                Left = entities[0];
-                Right = entities[1];
+                left = entities[0];
+                right = entities[1];
             }
             else
             {
@@ -34,10 +34,10 @@ class BVHNode : public IRayCastable
 
                 for (int axis = 0; axis < 3; axis++)
                 {
-                    float scale = (Bounds.Extends[1][axis] - Bounds.Extends[0][axis]) / planeCount;
+                    float scale = (aabb.extends[1][axis] - aabb.extends[0][axis]) / planeCount;
                     for (int i = 0; i < planeCount; i++)
                     {
-                        float pos = Bounds.Extends[0][axis] + i * scale;
+                        float pos = aabb.extends[0][axis] + i * scale;
                         float cost = EvaluateSAH(entities, pos, axis);   
                         if(cost < bestCost)
                         {
@@ -51,16 +51,16 @@ class BVHNode : public IRayCastable
                 if(bestCost == FLT_MAX)
                 {
                     bestAxis = 0;
-                    if(Bounds.Extends[1][1] - Bounds.Extends[0][1] > Bounds.Extends[1][0] - Bounds.Extends[0][0]) bestAxis = 1;
-                    if(Bounds.Extends[1][2] - Bounds.Extends[0][2] > Bounds.Extends[1][bestAxis] - Bounds.Extends[0][bestAxis]) bestAxis = 2;
+                    if(aabb.extends[1][1] - aabb.extends[0][1] > aabb.extends[1][0] - aabb.extends[0][0]) bestAxis = 1;
+                    if(aabb.extends[1][2] - aabb.extends[0][2] > aabb.extends[1][bestAxis] - aabb.extends[0][bestAxis]) bestAxis = 2;
 
-                    bestPos = Bounds.Center[bestAxis];
+                    bestPos = aabb.center[bestAxis];
                 }
 
                 int mid = Split(entities, bestPos, bestAxis);
                 int rem = entities.size() - mid;
-                Left  = new BVHNode(entities.subspan(0, mid));
-                Right = new BVHNode(entities.subspan(mid, rem));
+                left  = new BVHNode(entities.subspan(0, mid));
+                right = new BVHNode(entities.subspan(mid, rem));
             }
         }
 
@@ -70,14 +70,14 @@ class BVHNode : public IRayCastable
             int lc = 0, rc = 0;
             for (size_t i = 0; i < entities.size(); i++)
             {
-                if(entities[i]->Bounds.Center[axis] < pos)
+                if(entities[i]->aabb.center[axis] < pos)
                 {
-                    left.Extend(entities[i]->Bounds);
+                    left.Extend(entities[i]->aabb);
                     lc++;
                 }
                 else
                 {
-                    right.Extend(entities[i]->Bounds);
+                    right.Extend(entities[i]->aabb);
                     rc++;
                 }
             }
@@ -91,7 +91,7 @@ class BVHNode : public IRayCastable
             int j = entities.size() - 1;
             while (i <= j)
             {
-                if (entities[i]->Bounds.Center[axis] < c)
+                if (entities[i]->aabb.center[axis] < c)
                     i++;
                 else
                     std::swap( entities[i], entities[j--] );
@@ -106,19 +106,19 @@ class BVHNode : public IRayCastable
 
         virtual bool RayCast(const Ray& ray, RayHit* hit) override
         {
-            if(!Bounds.Test(ray))
+            if(!aabb.Test(ray))
             {
                 return false;
             }
             RayHit lhit;
             RayHit rhit;
-            bool l = Left->RayCast(ray, &lhit);
-            bool r = Right->RayCast(ray, &rhit);
+            bool l = left->RayCast(ray, &lhit);
+            bool r = right->RayCast(ray, &rhit);
 
-            *hit = lhit.Distance < rhit.Distance ? lhit : rhit; 
+            *hit = lhit.distance < rhit.distance ? lhit : rhit; 
             return l || r;
         }
-        IRayCastable* Left;
-        IRayCastable* Right;        
+        IRayCastable* left;
+        IRayCastable* right;        
 };
 

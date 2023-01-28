@@ -3,7 +3,7 @@
 #include <GL/glew.h>
 
 GLTexture::GLTexture(const TextureProperties& props)
-    : _unit(props.Unit), _width(props.Width), _height(props.Height)
+    : _unit(props.unit), _width(props.width), _height(props.height)
 {
     glGenTextures(1, &_rendererId);
     glActiveTexture(GL_TEXTURE0 + _unit);    

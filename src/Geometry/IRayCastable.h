@@ -14,5 +14,5 @@ class IRayCastable
         {
             return false;
         }
-        AABB Bounds;
+        AABB aabb;
 };
