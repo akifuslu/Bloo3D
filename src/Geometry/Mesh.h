@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Scene/Transform.h"
 #include "IRayCastable.h"
 #include "glm/glm.hpp"
 #include "BVH.h"
@@ -8,7 +9,6 @@
 
 struct Ray;
 struct RayHit;
-class Object;
 
 struct Vertex
 {
@@ -55,11 +55,9 @@ class Mesh : public IRayCastable
         void AddVertex(glm::vec3 pos, glm::vec3 norm);
         void AddTriangle(int i, int j, int k);
         int MaterialIndex;
-        void SetParent(Object* parent);
-        Object* GetParent() const;
+        Transform transform;
     private:
         std::vector<Vertex*> _verts;
         std::vector<Triangle*> _tris;
         BVHNode* _bvh;
-        Object* _parent;
 };

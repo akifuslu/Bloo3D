@@ -101,9 +101,9 @@ glm::vec3 Raytracer::GetFragColor(const Ray& ray, const RayHit& frag)
 
     for (size_t i = 0; i < _lights.size(); i++)
     {
-        glm::vec3 lightDir = normalize(_lights[i]->GetPos() - frag.Point);
+        glm::vec3 lightDir = normalize(_lights[i]->transform.GetLocation() - frag.Point);
         // shadow check here
-        glm::vec3 luminance = _lights[i]->GetLuminance(frag.Point);
+        glm::vec3 luminance = _lights[i]->GetAttenuation(frag.Point);
         color += _mats[frag.MatIndex]->Shade({
             .Normal = normalize(frag.Normal),
             .LightDir = normalize(lightDir),

@@ -55,8 +55,9 @@ int main(void)
     Raytracer raytracer(camera.get(), to.get());
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
-    Importer::Import("res/cube.obj", mesh.get());
+    Importer::Import("res/monkey.obj", mesh.get());
     mesh->BuildBVH();
+    mesh->transform.SetRotation(Transform::EulerToQuat(glm::vec3(0, 180, 0)));
     raytracer.AddMesh(mesh.get());
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
@@ -69,17 +70,10 @@ int main(void)
     mesh->MaterialIndex = matIndex;
 
 
-    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(5, 5, -5), glm::vec3(1, 1, 1), 100);
+    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(1, 1, 1), 100);
+    light->transform.SetLocation(glm::vec3(0, 5, -5));
 
     raytracer.AddLight(light.get());
-
-    // inspector
-    std::unique_ptr<Object> obj = std::make_unique<Object>("object");
-    std::unique_ptr<ObjectInspector> insp = std::make_unique<ObjectInspector>();
-
-    insp->Bind(obj.get());
-
-    mesh->SetParent(obj.get());
 
     // imgui setup
     IMGUI_CHECKVERSION();
@@ -116,43 +110,7 @@ int main(void)
             raytracer.OnResize(window->GetWidth(), window->GetHeight());
             raytracer.Render();
         }
-        // draw here
         renderer->Render(testScene);
- 
-        //ImGui::ShowDemoWindow();
-        if(ImGui::DragFloat3("pos", &camPos[0]))
-        {
-            camera->SetPosition(camPos);
-        }
-        if(ImGui::DragFloat3("rot", &camRot[0]))
-        {
-            camera->SetRotation(camRot);
-        }
-
-        if(ImGui::SliderFloat("metallic", &difMat->Metallic, 0, 1))
-        {
-//            renderer.Refresh();
-        }
-        if(ImGui::SliderFloat("roughness", &difMat->Roughness, 0, 1))
-        {
-//            renderer.Refresh();
-        }
-        float lp = light->GetPower();
-        if(ImGui::SliderFloat("light power", &lp, 1, 100))
-        {
-            light->SetPower(lp);
-            raytracer.Render();
-        }
-        if(ImGui::ColorPicker3("color", &difMat->Albedo[0]))
-        {
-//            renderer.Render();
-        }
-
-
-        if(insp->OnGUI())
-        {
-//            renderer.Refresh();
-        }
 
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
