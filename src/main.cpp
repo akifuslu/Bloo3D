@@ -8,18 +8,11 @@
 #include "Scene/Object.h"
 #include "UI/ObjectInspector.h"
 #include "Window.h"
-#include "GPU/Buffer.h"
-#include "GPU/GL/GLVertexArray.h"
-#include "GPU/VertexBufferLayout.h"
-#include "GPU/Shader.h"
 #include "GPU/Texture.h"
 #include "Geometry/ScreenQuad.h"
 #include "Renderer/GLRenderer.h"
 #include "Scene/Scene.h"
-
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl3.h"
+#include "UI/UIManager.h"
 #include "Logger.h"
 
 #include "pch.h"
@@ -75,45 +68,24 @@ int main(void)
 
     raytracer.AddLight(light.get());
 
-    // imgui setup
-    IMGUI_CHECKVERSION();
-    ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
-    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
-    // Setup Dear ImGui style
-    ImGui::StyleColorsDark();
-    //ImGui::StyleColorsClassic();
-
-    // Setup Platform/Renderer backends
-    const char* glsl_version = "#version 410";
-    ImGui_ImplGlfw_InitForOpenGL(window->Get(), true);
-    ImGui_ImplOpenGL3_Init(glsl_version);
+    std::unique_ptr<UIManager> uiManager = std::make_unique<UIManager>(window.get());
 
     Scene testScene;
     while (!window->ShouldClose())
     {
         renderer->Clear();
-
-        ImGui_ImplOpenGL3_NewFrame();
-        ImGui_ImplGlfw_NewFrame();
-        ImGui::NewFrame();
+        uiManager->NewFrame();
 
         if(window->IsResized())
         {
-            std::cout << window->GetWidth() << std::endl;
-            std::cout << window->GetHeight() << std::endl;
-
             to->Resize(window->GetWidth(), window->GetHeight());            
             camera->OnResize(window->GetWidth(), window->GetHeight());
             raytracer.OnResize(window->GetWidth(), window->GetHeight());
             raytracer.Render();
         }
-        renderer->Render(testScene);
 
-        ImGui::Render();
-        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+        renderer->Render(testScene);
+        uiManager->Render();
 
         window->SwapBuffers();
         window->Poll();

@@ -16,6 +16,7 @@ set (SRC
         src/Light/PointLight.cpp
         src/Material/Material.cpp
         src/Scene/Object.cpp
+        src/UI/UIManager.cpp
         src/UI/ObjectInspector.cpp
         src/GPU/Buffer.cpp        
         src/GPU/VertexBufferLayout.cpp
