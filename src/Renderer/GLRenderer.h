@@ -27,7 +27,7 @@ class GLRenderer
             _mode = mode;
             if(changed)
             {
-                OnRenderModeChange();
+                // maybe need to change something when mode changes
             }
         }
         inline GLRenderMode GetMode() const
@@ -37,9 +37,9 @@ class GLRenderer
     private:
         void RenderInternal(const Scene& scene);        
         void RenderInternalQuad();
-        void OnRenderModeChange();
         std::unique_ptr<GLVertexArray> _vao; // single VAO for now
         std::unique_ptr<ScreenQuad> _quad;
         std::unique_ptr<Shader> _quadShader;
+        std::unique_ptr<Shader> _unlitShader;
         GLRenderMode _mode;
 };

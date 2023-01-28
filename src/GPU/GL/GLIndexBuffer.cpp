@@ -29,3 +29,12 @@ int GLIndexBuffer::GetCount() const
 {
     return _count;
 }
+
+void GLIndexBuffer::Update(const void* data, unsigned int count)
+{
+    _count = count;
+    auto size = _count * sizeof(unsigned int);
+    Bind();
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+}
+

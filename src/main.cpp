@@ -71,6 +71,9 @@ int main(void)
     std::unique_ptr<UIManager> uiManager = std::make_unique<UIManager>(window.get());
 
     Scene testScene;
+    testScene.mainCam = camera.get();
+    testScene.meshes.push_back(mesh.get());
+    renderer->SetMode(GLRenderMode::DEFAULT);
     while (!window->ShouldClose())
     {
         renderer->Clear();
@@ -89,6 +92,19 @@ int main(void)
 
         window->SwapBuffers();
         window->Poll();
+
+        int Estate = glfwGetKey(window->Get(), GLFW_KEY_E);
+        if (Estate == GLFW_PRESS)
+        {
+            renderer->SetMode(GLRenderMode::RAYTRACER);
+            raytracer.Render();
+        }
+        int Qstate = glfwGetKey(window->Get(), GLFW_KEY_Q);
+        if (Qstate == GLFW_PRESS)
+        {
+            renderer->SetMode(GLRenderMode::DEFAULT);
+        }
+
     }
  
     // cleanup

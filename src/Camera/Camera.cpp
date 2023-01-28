@@ -64,5 +64,7 @@ void Camera::RebuildMatrix()
     _mat = glm::rotate(glm::radians(_rot.y), glm::vec3(0, 1, 0)) * _mat;
     _mat = glm::rotate(glm::radians(_rot.z), glm::vec3(0, 0, 1)) * _mat;
     _tInvMat = transpose((inverse(_mat)));
+    
+    _projection = glm::perspective(glm::radians(_fov), _aspect, 0.01f, 100.0f);
+    _vp = _projection * _mat;
 }
-

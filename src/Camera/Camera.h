@@ -26,8 +26,14 @@ class Camera
         {
             return _height;
         }
+        inline glm::mat4 GetVP() const
+        {
+            return _vp;
+        }
     private:
         void RebuildMatrix();
+        glm::mat4 _projection;
+        glm::mat4 _vp;
         glm::mat4 _mat;
         glm::mat4 _tInvMat;
         glm::vec3 _pos;

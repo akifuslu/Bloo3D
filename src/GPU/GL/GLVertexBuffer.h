@@ -10,6 +10,7 @@ class GLVertexBuffer : public VertexBuffer
         virtual ~GLVertexBuffer();
         virtual void Bind() const override;
         virtual void UnBind() const override;
+        virtual void Update(const void* data, unsigned int size) const override;
     private:
         unsigned int _rendererId;
 };

@@ -1,11 +1,11 @@
 #pragma once
 
-#include "IDrawable.h"
+#include "RenderInfo.h"
 #include "pch.h"
 
-class ScreenQuad : public IDrawable
+class ScreenQuad
 {
     public:
         ScreenQuad();
-        virtual ~ScreenQuad() override;    
+        RenderInfo renderInfo;
 };

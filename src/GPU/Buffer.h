@@ -17,6 +17,7 @@ class VertexBuffer
         virtual ~VertexBuffer();        
         virtual void Bind() const = 0;
         virtual void UnBind() const = 0;
+        virtual void Update(const void* data, unsigned int size) const = 0;
 };
 
 class IndexBuffer
@@ -27,5 +28,6 @@ class IndexBuffer
         virtual void Bind() const = 0;
         virtual void UnBind() const = 0;
         virtual int GetCount() const = 0;
+        virtual void Update(const void* data, unsigned int count) = 0;
 };
 

@@ -17,15 +17,11 @@ ScreenQuad::ScreenQuad()
         0, 2, 3
     };
 
-    _vb.reset(VertexBuffer::Create(pos, 16 * sizeof(float)));
-    _ib.reset(IndexBuffer::Create(inds, 6));
+    renderInfo.vb.reset(VertexBuffer::Create(pos, 16 * sizeof(float)));
+    renderInfo.ib.reset(IndexBuffer::Create(inds, 6));
 
-    _layout.reset(new VertexBufferLayout());
-    _layout->Push<float>(2);
-    _layout->Push<float>(2);
+    renderInfo.layout.reset(new VertexBufferLayout());
+    renderInfo.layout->Push<float>(2);
+    renderInfo.layout->Push<float>(2);
 }
 
-ScreenQuad::~ScreenQuad() 
-{
-    
-}

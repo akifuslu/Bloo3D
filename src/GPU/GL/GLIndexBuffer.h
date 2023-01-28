@@ -10,6 +10,7 @@ class GLIndexBuffer : public IndexBuffer
         virtual void Bind() const override;
         virtual void UnBind() const override;
         virtual int GetCount() const override;
+        virtual void Update(const void* data, unsigned int count) override;
     private:
         unsigned int _rendererId;
         unsigned int _count;

@@ -4,6 +4,7 @@
 #include "IRayCastable.h"
 #include "glm/glm.hpp"
 #include "BVH.h"
+#include "RenderInfo.h"
 
 #include "pch.h"
 
@@ -14,17 +15,9 @@ struct Vertex
 {
     glm::vec3 pos;
     glm::vec3 normal;
-    bool hasNormal;
 
-    Vertex(const glm::vec3& pos) : pos(pos)
-    {
-        hasNormal = false;
-    }
-
-    Vertex(const glm::vec3& pos, const glm::vec3& norm) : pos(pos), normal(norm) 
-    {
-        hasNormal = true;
-    }
+    Vertex(const glm::vec3& pos) : pos(pos), normal(glm::vec3(1, 0, 0)) {} // normals are invalid in this state, normal recalculation must be run in such cases 
+    Vertex(const glm::vec3& pos, const glm::vec3& norm) : pos(pos), normal(norm) {}
 };
 
 class Triangle : public IRayCastable
@@ -48,7 +41,7 @@ class Mesh : public IRayCastable
 {
     public:
         Mesh();
-        virtual ~Mesh() override;
+        virtual ~Mesh() override = default;
         void BuildBVH();
         virtual bool RayCast(const Ray& ray, RayHit* hit) override;
         void AddVertex(glm::vec3 pos);
@@ -56,8 +49,11 @@ class Mesh : public IRayCastable
         void AddTriangle(int i, int j, int k);
         int materialIndex;
         Transform transform;
+        RenderInfo renderInfo;
+        void UpdateRenderInfo();
     private:
-        std::vector<Vertex*> _verts;
-        std::vector<Triangle*> _tris;
+        std::vector<Vertex> _verts;
+        std::vector<Triangle> _tris;
+        std::vector<unsigned int> _inds; // must be in sync with the Triangle vector, TODO: find a better way to handle GL index buffers
         BVHNode* _bvh;
 };
