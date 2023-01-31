@@ -28,7 +28,7 @@ GLRenderer::~GLRenderer()
 
 void GLRenderer::Clear()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }
 
 void GLRenderer::OnResize(int width, int height)
@@ -54,10 +54,30 @@ void GLRenderer::Render(const Scene& scene)
 
 void GLRenderer::RenderInternal(const Scene& scene)
 {
+    GLenum err;
+    while((err = glGetError()) != GL_NO_ERROR)
+    {
+        LOG(err);
+    }
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);
     auto viewProj = scene.mainCam->GetViewProj();
+    // render others
+    for(auto& mesh: scene.meshes)
+    {
+        mesh->UpdateRenderInfo();
+        auto mvp = viewProj * mesh->transform.LocalToWorld();
+        _unlitShader->Bind();
+        _unlitShader->SetMatrix4("MVP", mvp);
+        _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
+        mesh->renderInfo.ib->Bind();
+        glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
+    }
+
+    // transparent objects
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
-    // render grid first
+    // render grid last
     _gridShader->Bind();
     _gridShader->SetFloat("CameraY", scene.mainCam->transform.GetLocation().y);
     _gridShader->SetFloat("Near", scene.mainCam->GetNear());
@@ -68,18 +88,7 @@ void GLRenderer::RenderInternal(const Scene& scene)
     _vao->AddBuffer(_grid->renderInfo.vb.get(), *_grid->renderInfo.layout.get());
     _grid->renderInfo.ib->Bind();
     glDrawElements(GL_TRIANGLES, _grid->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
-    // render others
-    return;
-    for(auto& mesh: scene.meshes)
-    {
-        mesh->UpdateRenderInfo();
-        auto mvp = viewProj * glm::identity<glm::mat4>(); //viewProj * mesh->transform.LocalToWorld();
-        _unlitShader->Bind();
-        _unlitShader->SetMatrix4("MVP", mvp);
-        _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
-        mesh->renderInfo.ib->Bind();
-        glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
-    }
+    glDisable(GL_BLEND);
 }
 
 void GLRenderer::RenderInternalQuad()

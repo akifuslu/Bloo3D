@@ -41,6 +41,12 @@ float map(float value, float min1, float max1, float min2, float max2)
   return min2 + (value - min1) * (max2 - min2) / (max1 - min1);
 }
 
+float depth(vec3 wp)
+{
+    vec4 clipSpacePos = ViewProj * vec4(wp.xyz, 1.0);
+    return (clipSpacePos.z / clipSpacePos.w) * 0.5 + 0.5;
+}
+
 float linearDepth(vec3 wp) 
 {
     vec4 clipSpacePos = ViewProj * vec4(wp.xyz, 1.0);
@@ -100,4 +106,5 @@ void main()
     color = mix(grid(wp, scale), grid(wp, scale2), gridMix) * float(t > 0.0);
     float ld = linearDepth(wp);
     color.a *= smoothstep(0.5, 0.0, ld);
+    gl_FragDepth = depth(wp);
 }
