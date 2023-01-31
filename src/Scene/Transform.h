@@ -3,6 +3,7 @@
 #include "glm/glm.hpp"
 #include "glm/gtx/quaternion.hpp"
 #include "glm/gtx/transform.hpp"
+#include "pch.h"
 
 class Transform
 {
@@ -64,7 +65,7 @@ class Transform
         ~Transform() = default;
         Transform(const Transform& other) = delete;
         Transform& operator=(const Transform& other) = delete;
-        
+        std::function<void()> onUpdate;
 
         inline glm::vec3 GetLocation() const
         {
@@ -93,6 +94,18 @@ class Transform
             _scale = sca;
             RebuildMat();
         }
+        inline glm::vec3 Right() const
+        {
+            return _localToWorld[0];
+        }
+        inline glm::vec3 Up() const
+        {
+            return _localToWorld[1];
+        }
+        inline glm::vec3 Forward() const
+        {
+            return _localToWorld[2];
+        }
         inline glm::mat4 LocalToWorld() const
         {
             return _localToWorld;
@@ -103,9 +116,13 @@ class Transform
         }
     private:
         void RebuildMat()
-        {
+        {            
             _localToWorld = glm::translate(_location) * glm::toMat4(_rotation) * glm::scale(_scale);
             _worldToLocal = inverse(_localToWorld);
+            if(onUpdate != nullptr)
+            {
+                onUpdate();
+            }
         }
         glm::vec3 _location;
         glm::quat _rotation;

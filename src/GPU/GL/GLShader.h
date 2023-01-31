@@ -13,6 +13,7 @@ class GLShader : public Shader
         virtual void Bind() const override;
         virtual void UnBind() const override;
         virtual void SetMatrix4(const std::string& name, glm::mat4 matrix) override;
+        virtual void SetFloat(const std::string& name, float value) override;
     private:
         unsigned int _rendererId;
         std::unordered_map<std::string, int> _uniforms;

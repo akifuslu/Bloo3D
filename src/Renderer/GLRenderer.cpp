@@ -14,6 +14,9 @@ GLRenderer::GLRenderer()
     // init screen quad
     _quad.reset(new ScreenQuad());
     _quadShader.reset(Shader::Create("res/shaders/TexturedScreenQuad.shader"));
+    // init grid
+    _grid.reset(new ScreenQuad());
+    _gridShader.reset(Shader::Create("res/shaders/InfiniteGrid.shader"));
     // init unlit shader(for now)
     _unlitShader.reset(Shader::Create("res/shaders/Unlit.shader"));
 }
@@ -51,17 +54,22 @@ void GLRenderer::Render(const Scene& scene)
 
 void GLRenderer::RenderInternal(const Scene& scene)
 {
-    auto viewProj = scene.mainCam->GetVP();
-    //glm::mat4 proj = glm::perspective(glm::radians(60.0f), 4.0f / 3.0f, 0.01f, 100.0f);
-    //glm::mat4 view = glm::lookAt(glm::vec3(0, 0, -5), glm::vec3(0), glm::vec3(0, 1, 0));
-
-    //auto viewProj = proj * view;
-
-    GLenum err;
-    while((err = glGetError()) != GL_NO_ERROR)
-    {
-        LOG(err);
-    }
+    auto viewProj = scene.mainCam->GetViewProj();
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+    // render grid first
+    _gridShader->Bind();
+    _gridShader->SetFloat("CameraY", scene.mainCam->transform.GetLocation().y);
+    _gridShader->SetFloat("Near", scene.mainCam->GetNear());
+    _gridShader->SetFloat("Far", scene.mainCam->GetFar());
+    _gridShader->SetMatrix4("ViewProj", viewProj);
+    _gridShader->SetMatrix4("InvView", scene.mainCam->GetInvView());
+    _gridShader->SetMatrix4("InvProj", scene.mainCam->GetInvProj());
+    _vao->AddBuffer(_grid->renderInfo.vb.get(), *_grid->renderInfo.layout.get());
+    _grid->renderInfo.ib->Bind();
+    glDrawElements(GL_TRIANGLES, _grid->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
+    // render others
+    return;
     for(auto& mesh: scene.meshes)
     {
         mesh->UpdateRenderInfo();
@@ -72,13 +80,6 @@ void GLRenderer::RenderInternal(const Scene& scene)
         mesh->renderInfo.ib->Bind();
         glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
     }
-    // auto mvp = viewProj * glm::identity<glm::mat4>(); //viewProj * mesh->transform.LocalToWorld();
-    // _unlitShader->Bind();
-    // _unlitShader->SetMatrix4("MVP", mvp);
-    
-    // _vao->AddBuffer(_quad->renderInfo.vb.get(), *_quad->renderInfo.layout.get());
-    // _quad->renderInfo.ib->Bind();
-    glDrawElements(GL_TRIANGLES, _quad->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
 }
 
 void GLRenderer::RenderInternalQuad()

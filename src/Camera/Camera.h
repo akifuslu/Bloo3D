@@ -2,21 +2,20 @@
 
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
+#include "Scene/Transform.h"
 
 struct Ray;
 
 class Camera
 {
     public:
-        Camera(glm::vec3 pos, 
-               glm::vec3 rot, 
-               float fov,
+        Camera(float fov,
+               float near,
+               float far,
                u_int32_t width,
                u_int32_t height);
 
         Ray GetRay(int x, int y);
-        void SetPosition(glm::vec3 pos);
-        void SetRotation(glm::vec3 rot);
         void OnResize(int width, int height);
         inline u_int32_t GetWidth() const
         {
@@ -26,21 +25,38 @@ class Camera
         {
             return _height;
         }
-        inline glm::mat4 GetVP() const
+        inline glm::mat4 GetViewProj() const
         {
-            return _vp;
+            return _viewProj;
         }
+        inline glm::mat4 GetInvView() const
+        {
+            return _invView;
+        }
+        inline glm::mat4 GetInvProj() const
+        {
+            return _invProj;
+        }
+        inline float GetNear() const
+        {
+            return _near;
+        }
+        inline float GetFar() const
+        {
+            return _far;
+        }
+        Transform transform;
     private:
         void RebuildMatrix();
-        glm::mat4 _projection;
-        glm::mat4 _vp;
-        glm::mat4 _mat;
-        glm::mat4 _tInvMat;
-        glm::vec3 _pos;
-        glm::vec3 _rot;
+        glm::mat4 _proj;
+        glm::mat4 _invProj;
+        glm::mat4 _viewProj;
+        glm::mat4 _view;
+        glm::mat4 _invView;
         float _fov;
-        float _scale;
         float _aspect;
+        float _near;
+        float _far;
         u_int32_t _width;
         u_int32_t _height;
 };

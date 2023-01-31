@@ -5,10 +5,10 @@ ScreenQuad::ScreenQuad()
 {
     float pos[] = 
     {
-        -1.0f,  1.0f, 0.0f, 0.0f, // ul
-         1.0f,  1.0f, 1.0f, 0.0f, // ur
-         1.0f, -1.0f, 1.0f, 1.0f, // lr
-        -1.0f, -1.0f, 0.0f, 1.0f, // ll
+        -1.0f, -1.0f, 0.0f, 0.0f, // ll
+         1.0f, -1.0f, 1.0f, 0.0f, // lr
+         1.0f,  1.0f, 1.0f, 1.0f, // ur
+        -1.0f,  1.0f, 0.0f, 1.0f, // ul
     };
 
     unsigned int inds[] = 

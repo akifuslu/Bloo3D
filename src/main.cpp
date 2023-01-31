@@ -6,7 +6,7 @@
 #include "Light/PointLight.h"
 #include "Material/Material.h"
 #include "Scene/Object.h"
-#include "UI/ObjectInspector.h"
+#include "UI/TransformInspector.h"
 #include "Window.h"
 #include "GPU/Texture.h"
 #include "Geometry/ScreenQuad.h"
@@ -35,22 +35,26 @@ int main(void)
         .height = window->GetHeight()
     }));
 
-    glm::vec3 camPos(0, 0, -5);
-    glm::vec3 camRot(0, 0, 0);
     std::unique_ptr<Camera> camera = std::make_unique<Camera>(
-        camPos,
-        camRot,
         60,
+        0.01f,
+        1000.0f,
         window->GetWidth(),
         window->GetHeight()
     );
+
+    camera->transform.SetLocation(glm::vec3(0, 2, -5));
+    camera->transform.SetRotation(Transform::EulerToQuat(glm::vec3(15, 0, 0)));
+
+    TransformInspector insp;
+    insp.Bind(&camera->transform);
+
     // create renderer
     Raytracer raytracer(camera.get(), to.get());
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
     Importer::Import("res/monkey.obj", mesh.get());
     mesh->BuildBVH();
-    mesh->transform.SetRotation(Transform::EulerToQuat(glm::vec3(0, 180, 0)));
     raytracer.AddMesh(mesh.get());
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
@@ -88,6 +92,7 @@ int main(void)
         }
 
         renderer->Render(testScene);
+        insp.OnGUI();
         uiManager->Render();
 
         window->SwapBuffers();

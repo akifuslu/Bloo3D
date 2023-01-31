@@ -1,9 +1,11 @@
 #include "GLShader.h"
 #include "GL/glew.h"
 
+#include "Logger.h"
 #include "pch.h"
+#include <filesystem>
 
-unsigned int CreateShader(const std::string& source, int type)
+unsigned int CreateShader(const std::string& name, const std::string& source, int type)
 {
     int length = source.length();
     const char *shader = (const char *)source.c_str();
@@ -13,11 +15,17 @@ unsigned int CreateShader(const std::string& source, int type)
     glCompileShader(vs);
 
     char output[1024] = {0};
-    glGetShaderInfoLog(vs, 1024, &length, output);
-    std::string stype = (type == GL_VERTEX_SHADER ? "VS" : "FS");
-    std::cout << stype << " compile log:" << output << std::endl;
+    int outLen = 0;
+    glGetShaderInfoLog(vs, 1024, &outLen, output);
+    if(outLen == 0)
+    {
+        return vs; // no error
+    }
+    // report error
+    std::string stype = (type == GL_VERTEX_SHADER ? "Vertex" : "Fragment");
+    LOGERROR("Shader compile error in {} stage {} \n {}", name, stype, output);
 
-    return vs;
+    return vs; // TODO: In case of error default fallback shader must be used!!
 }
 
 struct ShaderSources{
@@ -66,9 +74,10 @@ ShaderSources ParseShaderSource(const std::string& path)
 
 GLShader::GLShader(const std::string& filepath) 
 {
+    auto name = std::filesystem::path(filepath).filename();
     ShaderSources sources = ParseShaderSource(filepath);
-    unsigned int vs = CreateShader(sources.vsSource, GL_VERTEX_SHADER);
-    unsigned int fs = CreateShader(sources.fsSource, GL_FRAGMENT_SHADER);
+    unsigned int vs = CreateShader(name, sources.vsSource, GL_VERTEX_SHADER);
+    unsigned int fs = CreateShader(name, sources.fsSource, GL_FRAGMENT_SHADER);
 
     _rendererId = glCreateProgram();
 
@@ -101,6 +110,10 @@ void GLShader::SetMatrix4(const std::string& name, glm::mat4 matrix)
     glUniformMatrix4fv(GetUniformLocation(name), 1, GL_FALSE, &matrix[0][0]);
 }
 
+void GLShader::SetFloat(const std::string& name, float value)
+{
+    glUniform1f(GetUniformLocation(name), value);
+}
 
 int GLShader::GetUniformLocation(const std::string& name) 
 {

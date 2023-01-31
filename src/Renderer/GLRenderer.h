@@ -39,7 +39,9 @@ class GLRenderer
         void RenderInternalQuad();
         std::unique_ptr<GLVertexArray> _vao; // single VAO for now
         std::unique_ptr<ScreenQuad> _quad;
+        std::unique_ptr<ScreenQuad> _grid;
         std::unique_ptr<Shader> _quadShader;
+        std::unique_ptr<Shader> _gridShader;
         std::unique_ptr<Shader> _unlitShader;
         GLRenderMode _mode;
 };
