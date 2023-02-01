@@ -44,7 +44,7 @@ int main(void)
     );
 
     camera->transform.SetLocation(glm::vec3(0, 2, -5));
-    camera->transform.SetRotation(Transform::EulerToQuat(glm::vec3(15, 0, 0)));
+    camera->transform.SetRotation(glm::vec3(15, 0, 0));
 
     TransformInspector insp;
     insp.Bind(&camera->transform);

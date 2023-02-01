@@ -18,7 +18,7 @@ GLRenderer::GLRenderer()
     _grid.reset(new ScreenQuad());
     _gridShader.reset(Shader::Create("res/shaders/InfiniteGrid.shader"));
     // init unlit shader(for now)
-    _unlitShader.reset(Shader::Create("res/shaders/Unlit.shader"));
+    _unlitShader.reset(Shader::Create("res/shaders/SimpleLit.shader"));
 }
 
 GLRenderer::~GLRenderer() 

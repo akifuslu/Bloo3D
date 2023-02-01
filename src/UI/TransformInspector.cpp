@@ -10,7 +10,7 @@ bool TransformInspector::OnGUI()
     }    
     bool refresh = false;
     glm::vec3 loc = _transform->GetLocation();
-    glm::vec3 rot = Transform::QuatToEuler(_transform->GetRotation());
+    glm::vec3 rot = _transform->GetRotation();//Transform::QuatToEuler(_transform->GetRotation());
     glm::vec3 sca = _transform->GetScale();    
     ImGui::Begin("Transform", &_open);
     if(ImGui::DragFloat3("Location", &loc[0]))
@@ -20,7 +20,7 @@ bool TransformInspector::OnGUI()
     }
     if(ImGui::DragFloat3("Rotation", &rot[0]))
     {
-        _transform->SetRotation(Transform::EulerToQuat(rot));
+        _transform->SetRotation(rot);
         refresh = true;
     }
     if(ImGui::DragFloat3("Scale", &sca[0]))
