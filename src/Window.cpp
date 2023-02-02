@@ -60,6 +60,11 @@ void Window::Init(const WindowProps& props)
         ((Window*)glfwGetWindowUserPointer(w))->OnMouseInput(b, a, m);
     };
 
+    auto mousePosCB = [](GLFWwindow* w, double x, double y)
+    {
+        ((Window*)glfwGetWindowUserPointer(w))->OnMousePositionInput(x, y);
+    };
+
     auto scrollCB = [](GLFWwindow* w, double x, double y)
     {
         ((Window*)glfwGetWindowUserPointer(w))->OnScrollInput(x, y);
@@ -68,6 +73,7 @@ void Window::Init(const WindowProps& props)
     glfwSetFramebufferSizeCallback(_window, resizeCB);
     glfwSetKeyCallback(_window, keyCB);
     glfwSetMouseButtonCallback(_window, mouseCB);
+    glfwSetCursorPosCallback(_window, mousePosCB);
     glfwSetScrollCallback(_window, scrollCB);
 }
 
@@ -107,7 +113,15 @@ void Window::OnKeyInput(int key, int scancode, int action, int mods)
 
 void Window::OnMouseInput(int button, int action, int mods)
 {
-    // TODO: input handling
+    Input::SetMouseButtonState(button, action);
+}
+
+void Window::OnMousePositionInput(double x, double y)
+{
+    // clamping mouse positions since off screen values makes no sense in our context
+    x = std::clamp((int)x, 0, _width - 1);
+    y = std::clamp((int)y, 0, _height - 1);    
+    Input::SetMousePosition(x, y);
 }
 
 void Window::OnScrollInput(double x, double y)

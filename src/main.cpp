@@ -23,6 +23,7 @@ int main(void)
     std::unique_ptr<Window> window = std::make_unique<Window>(WindowProps{
         .Title = "Bloo3D"
     });
+    Input::Initialize();
 
     std::unique_ptr<GLRenderer> renderer = std::make_unique<GLRenderer>();
 
@@ -90,7 +91,10 @@ int main(void)
             to->Resize(window->GetWidth(), window->GetHeight());            
             camera->OnResize(window->GetWidth(), window->GetHeight());
             raytracer.OnResize(window->GetWidth(), window->GetHeight());
-            raytracer.Render();
+            if(renderer->GetMode() == GLRenderMode::RAYTRACER)
+            {
+                raytracer.Render();
+            }
         }
 
         renderer->Render(testScene);
