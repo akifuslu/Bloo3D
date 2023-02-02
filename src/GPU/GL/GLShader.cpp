@@ -74,10 +74,10 @@ ShaderSources ParseShaderSource(const std::string& path)
 
 GLShader::GLShader(const std::string& filepath) 
 {
-    auto name = std::filesystem::path(filepath).filename();
+    _name = std::filesystem::path(filepath).filename();
     ShaderSources sources = ParseShaderSource(filepath);
-    unsigned int vs = CreateShader(name, sources.vsSource, GL_VERTEX_SHADER);
-    unsigned int fs = CreateShader(name, sources.fsSource, GL_FRAGMENT_SHADER);
+    unsigned int vs = CreateShader(_name, sources.vsSource, GL_VERTEX_SHADER);
+    unsigned int fs = CreateShader(_name, sources.fsSource, GL_FRAGMENT_SHADER);
 
     _rendererId = glCreateProgram();
 
@@ -115,6 +115,18 @@ void GLShader::SetFloat(const std::string& name, float value)
     glUniform1f(GetUniformLocation(name), value);
 }
 
+void GLShader::SetVec3(const std::string& name, glm::vec3 value)
+{
+    glUniform3f(GetUniformLocation(name), value.x, value.y, value.z);
+}
+
+void GLShader::SetUniformBlockBinding(const std::string& name, int index) const
+{
+    auto i = glGetUniformBlockIndex(_rendererId, name.c_str());
+    glUniformBlockBinding(_rendererId, i, index);
+}
+
+
 int GLShader::GetUniformLocation(const std::string& name) 
 {
     auto cached = _uniforms.find(name);
@@ -126,7 +138,7 @@ int GLShader::GetUniformLocation(const std::string& name)
     int loc = glGetUniformLocation(_rendererId, name.c_str());    
     if(loc == -1)
     {
-        std::cout << "No active uniform with name " << name << " has been found!" << std::endl;
+        LOGERROR("Uniform variable {} not found in {}", name, _name);
         return -1;
     }
 

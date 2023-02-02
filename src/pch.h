@@ -14,5 +14,7 @@
 #include <unordered_map>
 #include <math.h>
 #include <assert.h>
+#include <filesystem>
 
+static std::string s_BasePath = std::filesystem::current_path();
 

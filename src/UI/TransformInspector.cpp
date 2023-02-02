@@ -13,7 +13,7 @@ bool TransformInspector::OnGUI()
     glm::vec3 rot = _transform->GetRotation();//Transform::QuatToEuler(_transform->GetRotation());
     glm::vec3 sca = _transform->GetScale();    
     ImGui::Begin("Transform", &_open);
-    if(ImGui::DragFloat3("Location", &loc[0]))
+    if(ImGui::DragFloat3("Location", &loc[0], 0.1f))
     {
         _transform->SetLocation(loc);
         refresh = true;
@@ -23,7 +23,7 @@ bool TransformInspector::OnGUI()
         _transform->SetRotation(rot);
         refresh = true;
     }
-    if(ImGui::DragFloat3("Scale", &sca[0]))
+    if(ImGui::DragFloat3("Scale", &sca[0], 0.1f))
     {
         _transform->SetScale(sca);
         refresh = true;

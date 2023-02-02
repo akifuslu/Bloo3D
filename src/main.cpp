@@ -46,14 +46,12 @@ int main(void)
     camera->transform.SetLocation(glm::vec3(0, 2, -5));
     camera->transform.SetRotation(glm::vec3(15, 0, 0));
 
-    TransformInspector insp;
-    insp.Bind(&camera->transform);
 
     // create renderer
     Raytracer raytracer(camera.get(), to.get());
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
-    Importer::Import("res/monkey.obj", mesh.get());
+    Importer::Import(s_BasePath + "/res/monkey.obj", mesh.get());
     mesh->BuildBVH();
     raytracer.AddMesh(mesh.get());
 
@@ -74,6 +72,8 @@ int main(void)
 
     std::unique_ptr<UIManager> uiManager = std::make_unique<UIManager>(window.get());
 
+    TransformInspector insp;
+    insp.Bind(&mesh->transform);
     Scene testScene;
     testScene.mainCam = camera.get();
     testScene.meshes.push_back(mesh.get());

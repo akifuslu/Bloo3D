@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.0)
 project(Bloo3D VERSION 0.1.0)
 
 set (CMAKE_CXX_STANDARD 20)
-set (CMAKE_CXX_FLAGS "-O3 -Wall")
+set (CMAKE_CXX_FLAGS "-O3 -Wall -fsanitize=address")
 
 
 set (SRC 
@@ -27,6 +27,7 @@ set (SRC
         src/GPU/GL/GLVertexArray.cpp
         src/GPU/GL/GLShader.cpp
         src/GPU/GL/GLTexture.cpp
+        src/GPU/GL/GLUniformBuffer.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp

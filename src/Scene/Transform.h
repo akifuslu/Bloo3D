@@ -12,8 +12,9 @@ class Transform
             : _location(0), 
               _rotation(0), 
               _scale(1),
-              _localToWorld(glm::identity<glm::mat4>()),
-              _worldToLocal(glm::identity<glm::mat4>())
+              _localToWorld(1),
+              _worldToLocal(1),
+              _t_worldToLocal(1)
         {}
         ~Transform() = default;
         Transform(const Transform& other) = delete;
@@ -67,11 +68,16 @@ class Transform
         {
             return _worldToLocal;
         }
+        inline glm::mat4 T_WorldToLocal() const
+        {
+            return _t_worldToLocal;
+        }
     private:
         void RebuildMat()
         {            
             _localToWorld = glm::translate(_location) * glm::toMat4(glm::quat(glm::radians(_rotation))) * glm::scale(_scale);
             _worldToLocal = inverse(_localToWorld);
+            _t_worldToLocal = transpose(_worldToLocal);
             if(onUpdate != nullptr)
             {
                 onUpdate();
@@ -82,4 +88,5 @@ class Transform
         glm::vec3 _scale;
         glm::mat4 _localToWorld;
         glm::mat4 _worldToLocal;
+        glm::mat4 _t_worldToLocal; // used for transforming normal vectors to world space (transpose(inverse(localToWorld)) = transpose(worldToLocal))
 };

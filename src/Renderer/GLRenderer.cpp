@@ -13,12 +13,18 @@ GLRenderer::GLRenderer()
     _vao->Bind();
     // init screen quad
     _quad.reset(new ScreenQuad());
-    _quadShader.reset(Shader::Create("res/shaders/TexturedScreenQuad.shader"));
+    _quadShader.reset(Shader::Create(s_BasePath + "/res/shaders/TexturedScreenQuad.shader"));
     // init grid
     _grid.reset(new ScreenQuad());
-    _gridShader.reset(Shader::Create("res/shaders/InfiniteGrid.shader"));
+    _gridShader.reset(Shader::Create(s_BasePath + "/res/shaders/InfiniteGrid.shader"));
     // init unlit shader(for now)
-    _unlitShader.reset(Shader::Create("res/shaders/SimpleLit.shader"));
+    _pShader.reset(Shader::Create(s_BasePath + "/res/shaders/SimpleLit.shader"));
+    // init matrix buffer, we pass no data since we dont have the camera info yet
+    // but we pass the size so GPU can reserve the space for later use
+    _matrixBuffer.reset(UniformBuffer::Create(nullptr, sizeof(glm::mat4)));
+    _matrixBuffer->BindIndex(0);
+    _pShader->SetUniformBlockBinding("Matrices", 0); // TODO: we may need to keep track of block bindings for different UBOs
+    _gridShader->SetUniformBlockBinding("Matrices", 0);
 }
 
 GLRenderer::~GLRenderer() 
@@ -62,13 +68,19 @@ void GLRenderer::RenderInternal(const Scene& scene)
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
     auto viewProj = scene.mainCam->GetViewProj();
+    _matrixBuffer->Update(&viewProj[0][0], sizeof(glm::mat4));
     // render others
     for(auto& mesh: scene.meshes)
     {
         mesh->UpdateRenderInfo();
-        auto mvp = viewProj * mesh->transform.LocalToWorld();
-        _unlitShader->Bind();
-        _unlitShader->SetMatrix4("MVP", mvp);
+        auto m = mesh->transform.LocalToWorld();
+        auto tim = mesh->transform.T_WorldToLocal();
+        _pShader->Bind();
+        //_pShader->SetMatrix4("VP", viewProj);
+        _pShader->SetMatrix4("M", m);
+        _pShader->SetMatrix4("T_IM", tim);
+        _pShader->SetVec3("Light.pos", {0, 3, -3});
+        _pShader->SetVec3("Light.color", {0, 0, 5});
         _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
         mesh->renderInfo.ib->Bind();
         glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
@@ -82,7 +94,6 @@ void GLRenderer::RenderInternal(const Scene& scene)
     _gridShader->SetFloat("CameraY", scene.mainCam->transform.GetLocation().y);
     _gridShader->SetFloat("Near", scene.mainCam->GetNear());
     _gridShader->SetFloat("Far", scene.mainCam->GetFar());
-    _gridShader->SetMatrix4("ViewProj", viewProj);
     _gridShader->SetMatrix4("InvView", scene.mainCam->GetInvView());
     _gridShader->SetMatrix4("InvProj", scene.mainCam->GetInvProj());
     _vao->AddBuffer(_grid->renderInfo.vb.get(), *_grid->renderInfo.layout.get());

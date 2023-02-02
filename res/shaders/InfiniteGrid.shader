@@ -26,7 +26,11 @@ void main()
 #shader FRAGMENT
 #version 410
 
-uniform mat4 ViewProj;
+layout(std140) uniform Matrices
+{
+    mat4 VP; // view projection
+};
+
 uniform float Near;
 uniform float Far;
 uniform float CameraY;
@@ -43,13 +47,13 @@ float map(float value, float min1, float max1, float min2, float max2)
 
 float depth(vec3 wp)
 {
-    vec4 clipSpacePos = ViewProj * vec4(wp.xyz, 1.0);
+    vec4 clipSpacePos = VP * vec4(wp.xyz, 1.0);
     return (clipSpacePos.z / clipSpacePos.w) * 0.5 + 0.5;
 }
 
 float linearDepth(vec3 wp) 
 {
-    vec4 clipSpacePos = ViewProj * vec4(wp.xyz, 1.0);
+    vec4 clipSpacePos = VP * vec4(wp.xyz, 1.0);
     float clipSpaceDepth = (clipSpacePos.z / clipSpacePos.w);
     float ld = (2.0 * Near) / (Far + Near - clipSpaceDepth * (Far - Near));    
     return ld;

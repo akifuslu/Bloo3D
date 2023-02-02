@@ -3,6 +3,7 @@
 #include "Geometry/ScreenQuad.h"
 #include "GPU/GL/GLVertexArray.h"
 #include "GPU/Shader.h"
+#include "GPU/Buffer.h"
 #include "pch.h"
 
 class Scene;
@@ -42,6 +43,7 @@ class GLRenderer
         std::unique_ptr<ScreenQuad> _grid;
         std::unique_ptr<Shader> _quadShader;
         std::unique_ptr<Shader> _gridShader;
-        std::unique_ptr<Shader> _unlitShader;
+        std::unique_ptr<Shader> _pShader; // default shader for preview mode i.e editor view
         GLRenderMode _mode;
+        std::unique_ptr<UniformBuffer> _matrixBuffer; // TODO: maybe move this to somewhere else
 };
