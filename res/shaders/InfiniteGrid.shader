@@ -99,16 +99,22 @@ void main()
         b = 50;
         scale = 1.0;
     }
-    else
+    else if(y < 250)
     {
         a = 50;
-        b = 1000;
+        b = 250;
         scale = 0.1;
+    }
+    else
+    {
+        a = 250;
+        b = 1000;
+        scale = 0.01;
     }
     gridMix = map(y, a, b, 0, 1);
     float scale2 = scale / 10.0;
     color = mix(grid(wp, scale), grid(wp, scale2), gridMix) * float(t > 0.0);
     float ld = linearDepth(wp);
-    color.a *= smoothstep(0.5, 0.0, ld);
+    color.a *= smoothstep(0.9, 0.0, ld);
     gl_FragDepth = depth(wp);
 }

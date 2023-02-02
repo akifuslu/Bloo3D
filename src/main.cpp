@@ -40,7 +40,7 @@ int main(void)
     std::unique_ptr<Camera> camera = std::make_unique<Camera>(
         60,
         0.1f,
-        100.0f,
+        1000.0f,
         window->GetWidth(),
         window->GetHeight()
     );
