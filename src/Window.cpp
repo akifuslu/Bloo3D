@@ -1,5 +1,6 @@
 #include "Window.h"
 
+#include "Input.h"
 
 static bool s_GLFWInitialized = false;
 
@@ -59,9 +60,15 @@ void Window::Init(const WindowProps& props)
         ((Window*)glfwGetWindowUserPointer(w))->OnMouseInput(b, a, m);
     };
 
+    auto scrollCB = [](GLFWwindow* w, double x, double y)
+    {
+        ((Window*)glfwGetWindowUserPointer(w))->OnScrollInput(x, y);
+    };
+
     glfwSetFramebufferSizeCallback(_window, resizeCB);
     glfwSetKeyCallback(_window, keyCB);
     glfwSetMouseButtonCallback(_window, mouseCB);
+    glfwSetScrollCallback(_window, scrollCB);
 }
 
 void Window::Shutdown()
@@ -95,11 +102,16 @@ void Window::OnResize(int width, int height)
 
 void Window::OnKeyInput(int key, int scancode, int action, int mods)
 {
-    // TODO: input handling
+    Input::SetKeyState(key, action);
 }
 
 void Window::OnMouseInput(int button, int action, int mods)
 {
     // TODO: input handling
+}
+
+void Window::OnScrollInput(double x, double y)
+{
+    Input::SetMouseScroll(x, y);
 }
 

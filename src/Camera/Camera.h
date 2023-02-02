@@ -16,6 +16,7 @@ class Camera
                u_int32_t height);
 
         Ray GetRay(int x, int y);
+        void OnUpdate();
         void OnResize(int width, int height);
         inline u_int32_t GetWidth() const
         {

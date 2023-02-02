@@ -14,6 +14,7 @@
 #include "Scene/Scene.h"
 #include "UI/UIManager.h"
 #include "Logger.h"
+#include "Input.h"
 
 #include "pch.h"
 
@@ -81,6 +82,7 @@ int main(void)
     while (!window->ShouldClose())
     {
         renderer->Clear();
+        Input::NewFrame();
         uiManager->NewFrame();
 
         if(window->IsResized())
@@ -97,6 +99,8 @@ int main(void)
 
         window->SwapBuffers();
         window->Poll();
+
+        camera->OnUpdate();
 
         int Estate = glfwGetKey(window->Get(), GLFW_KEY_E);
         if (Estate == GLFW_PRESS)

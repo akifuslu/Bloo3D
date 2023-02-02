@@ -40,6 +40,7 @@ class Window
         void OnResize(int width, int height);
         void OnKeyInput(int key, int scancode, int action, int mods);
         void OnMouseInput(int button, int action, int mods);
+        void OnScrollInput(double x, double y);
         GLFWwindow* _window;
         int _width;
         int _height;

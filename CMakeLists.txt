@@ -8,6 +8,7 @@ set (CMAKE_CXX_FLAGS "-O3 -Wall -fsanitize=address")
 set (SRC 
         src/main.cpp
         src/Window.cpp
+        src/Input.cpp
         src/Renderer/Raytracer.cpp
         src/Renderer/GLRenderer.cpp
         src/Camera/Camera.cpp
