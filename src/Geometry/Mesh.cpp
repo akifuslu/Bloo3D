@@ -29,7 +29,14 @@ Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
 }
 
 Mesh::Mesh()
+    : Object()
 {
+    Init();
+}
+
+void Mesh::Init()
+{
+    type = ObjectType::MESH;
     materialIndex = -1;
     // create render info with empty buffers
     renderInfo.vb.reset(VertexBuffer::Create(nullptr, 0));

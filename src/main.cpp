@@ -6,13 +6,14 @@
 #include "Light/PointLight.h"
 #include "Material/Material.h"
 #include "Scene/Object.h"
-#include "UI/TransformInspector.h"
 #include "Window.h"
 #include "GPU/Texture.h"
 #include "Geometry/ScreenQuad.h"
 #include "Renderer/GLRenderer.h"
 #include "Scene/Scene.h"
 #include "UI/UIManager.h"
+#include "UI/HierarchyView.h"
+#include "UI/InspectorView.h"
 #include "Logger.h"
 #include "Input.h"
 
@@ -21,7 +22,9 @@
 int main(void)
 {
     std::unique_ptr<Window> window = std::make_unique<Window>(WindowProps{
-        .Title = "Bloo3D"
+        .Title = "Bloo3D",
+        .Width = 1024,
+        .Height = 768
     });
     Input::Initialize();
 
@@ -53,6 +56,7 @@ int main(void)
     Raytracer raytracer(camera.get(), to.get());
 
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
+    mesh->name = "Monki";
     Importer::Import(s_BasePath + "/res/monkey.obj", mesh.get());
     mesh->BuildBVH();
     raytracer.AddMesh(mesh.get());
@@ -67,19 +71,25 @@ int main(void)
     mesh->materialIndex = matIndex;
 
 
-    std::unique_ptr<PointLight> light = std::make_unique<PointLight>(glm::vec3(1, 1, 1), 100);
+    std::unique_ptr<PointLight> light = std::make_unique<PointLight>();
+    light->name = "PointLight";
+    light->SetPower(10);
     light->transform.SetLocation(glm::vec3(0, 5, -5));
 
     raytracer.AddLight(light.get());
 
     std::unique_ptr<UIManager> uiManager = std::make_unique<UIManager>(window.get());
 
-    TransformInspector insp;
-    insp.Bind(&mesh->transform);
     Scene testScene;
     testScene.mainCam = camera.get();
     testScene.meshes.push_back(mesh.get());
     renderer->SetMode(GLRenderMode::DEFAULT);
+
+    testScene.objects.push_back(mesh.get());
+    testScene.objects.push_back(light.get());
+
+    uiManager->SetScene(&testScene);
+
     while (!window->ShouldClose())
     {
         renderer->Clear();
@@ -98,7 +108,6 @@ int main(void)
         }
 
         renderer->Render(testScene);
-        insp.OnGUI();
         uiManager->Render();
 
         window->SwapBuffers();

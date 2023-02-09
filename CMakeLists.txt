@@ -18,7 +18,10 @@ set (SRC
         src/Material/Material.cpp
         src/Scene/Object.cpp
         src/UI/UIManager.cpp
+        src/UI/HierarchyView.cpp
+        src/UI/InspectorView.cpp
         src/UI/TransformInspector.cpp
+        src/UI/ObjectInspector.cpp
         src/GPU/Buffer.cpp        
         src/GPU/VertexBufferLayout.cpp
         src/GPU/Shader.cpp

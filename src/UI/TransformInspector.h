@@ -9,6 +9,6 @@ class TransformInspector
         void Bind(Transform* transform);
         void UnBind();
     private:
-        Transform* _transform;
+        Transform* _transform = nullptr;
         bool _open;
 };

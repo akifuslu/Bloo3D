@@ -19,8 +19,22 @@ void UIManager::NewFrame()
 
 void UIManager::Render() 
 {
+    _hierView.OnGUI();
+    _inspView.OnGUI();
+    static bool sdf;
+    ImGui::ShowDemoWindow(&sdf);
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());    
+}
+
+void UIManager::SetScene(Scene* scene)
+{
+    _scene = scene;
+    _hierView.Bind(_scene);
+    _scene->selectedObject.Subscribe([&](Object* sel)
+    {
+        _inspView.Bind(sel);
+    });
 }
 
 void UIManager::Init(Window* window) 
@@ -41,3 +55,4 @@ void UIManager::Init(Window* window)
     ImGui_ImplGlfw_InitForOpenGL(window->Get(), true);
     ImGui_ImplOpenGL3_Init(glsl_version);    
 }
+

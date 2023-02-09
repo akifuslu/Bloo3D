@@ -5,6 +5,7 @@
 #include "glm/glm.hpp"
 #include "BVH.h"
 #include "RenderInfo.h"
+#include "Scene/Object.h"
 
 #include "pch.h"
 
@@ -37,7 +38,7 @@ class Triangle : public IRayCastable
         glm::vec3 _v0v2N; 
 };
 
-class Mesh : public IRayCastable
+class Mesh : public Object, public IRayCastable
 {
     public:
         Mesh();
@@ -48,10 +49,10 @@ class Mesh : public IRayCastable
         void AddVertex(glm::vec3 pos, glm::vec3 norm);
         void AddTriangle(int i, int j, int k);
         int materialIndex;
-        Transform transform;
         RenderInfo renderInfo;
         void UpdateRenderInfo();
     private:
+        void Init();
         std::vector<Vertex> _verts;
         std::vector<Triangle> _tris;
         std::vector<unsigned int> _inds; // must be in sync with the Triangle vector, TODO: find a better way to handle GL index buffers
