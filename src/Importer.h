@@ -30,6 +30,11 @@ namespace Importer
             auto tri = aimesh->mFaces[i];
             mesh->AddTriangle(tri.mIndices[0], tri.mIndices[1], tri.mIndices[2]);
         }        
+
+        if(!aimesh->HasNormals())
+        {
+            mesh->RecalculateNormals();
+        }
     }
 
     bool Import(const std::string& filepath, Mesh* mesh)

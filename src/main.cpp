@@ -54,7 +54,7 @@ int main(void)
     std::unique_ptr<DirectionalLight> editorLight = std::make_unique<DirectionalLight>();
     editorLight->SetColor({1, 1, 1});
     editorLight->SetPower(1);
-    editorLight->transform.SetRotation({15, 0, 0});
+    editorLight->transform.SetRotation({90, 0, 30});
 
     // create renderer
     Raytracer raytracer(camera.get(), to.get());
@@ -64,6 +64,10 @@ int main(void)
     Importer::Import(s_BasePath + "/res/monkey.obj", mesh.get());
     mesh->BuildBVH();
     raytracer.AddMesh(mesh.get());
+
+    std::unique_ptr<Mesh> cube = std::make_unique<Mesh>();
+    Importer::Import(s_BasePath + "/res/cube.obj", cube.get());
+    cube->name = "Cube";
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -88,6 +92,7 @@ int main(void)
     testScene.editorCamera = camera.get();
     testScene.editorLight = editorLight.get();
     testScene.AddObject(mesh.get());
+    testScene.AddObject(cube.get());
     //testScene.AddObject(light.get());
 
     uiManager->SetScene(&testScene);

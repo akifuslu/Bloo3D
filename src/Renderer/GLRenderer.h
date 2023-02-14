@@ -44,6 +44,8 @@ class GLRenderer
         std::unique_ptr<Shader> _quadShader;
         std::unique_ptr<Shader> _gridShader;
         std::unique_ptr<Shader> _editorLitShader; // default shader for preview mode
+        std::unique_ptr<Shader> _editorOutlineShader; // default shader for preview mode
+        std::unique_ptr<Shader> _unlitShader; // default shader for preview mode
         GLRenderMode _mode;
         std::unique_ptr<UniformBuffer> _matrixBuffer; // TODO: maybe move this to somewhere else
 };

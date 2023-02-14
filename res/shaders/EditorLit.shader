@@ -62,5 +62,5 @@ void main()
     vec3 halfDir = normalize(-Light.dir + viewDir);
     vec3 diffuse = diffuseShade(BaseColor, Light.color, normal, lightDir);
     vec3 specular = specularShade(BaseColor, Light.color, normal, halfDir, Specular);
-    color = vec4(diffuse + specular, 1.0);
+    color = vec4(diffuse + specular + vec3(0.3), 1.0);
 }

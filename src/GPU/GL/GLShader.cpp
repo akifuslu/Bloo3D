@@ -120,6 +120,11 @@ void GLShader::SetVec3(const std::string& name, glm::vec3 value)
     glUniform3f(GetUniformLocation(name), value.x, value.y, value.z);
 }
 
+void GLShader::SetVec2(const std::string& name, glm::vec2 value)
+{
+    glUniform2f(GetUniformLocation(name), value.x, value.y);
+}
+
 void GLShader::SetUniformBlockBinding(const std::string& name, int index) const
 {
     auto i = glGetUniformBlockIndex(_rendererId, name.c_str());

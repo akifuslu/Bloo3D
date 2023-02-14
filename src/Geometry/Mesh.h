@@ -28,14 +28,13 @@ class Triangle : public IRayCastable
         virtual bool RayCast(const Ray& ray, RayHit* hit) override;
         glm::vec3 normal;        
         bool smooth;
-    private:
-        Vertex* _v0;
-        Vertex* _v1;
-        Vertex* _v2;
-        glm::vec3 _v0v1;
-        glm::vec3 _v0v2; 
-        glm::vec3 _v0v1N;
-        glm::vec3 _v0v2N; 
+        Vertex* v0;
+        Vertex* v1;
+        Vertex* v2;
+        glm::vec3 v0v1;
+        glm::vec3 v0v2; 
+        glm::vec3 v0v1N;
+        glm::vec3 v0v2N; 
 };
 
 class Mesh : public Object, public IRayCastable
@@ -51,6 +50,7 @@ class Mesh : public Object, public IRayCastable
         int materialIndex;
         RenderInfo renderInfo;
         void UpdateRenderInfo();
+        void RecalculateNormals();
     private:
         void Init();
         std::vector<Vertex> _verts;

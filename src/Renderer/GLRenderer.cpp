@@ -17,14 +17,22 @@ GLRenderer::GLRenderer()
     // init grid
     _grid.reset(new ScreenQuad());
     _gridShader.reset(Shader::Create(s_BasePath + "/res/shaders/InfiniteGrid.shader"));
-    // init unlit shader(for now)
+    // init editor lit shader
     _editorLitShader.reset(Shader::Create(s_BasePath + "/res/shaders/EditorLit.shader"));
+    // init editor outline shader
+    _editorOutlineShader.reset(Shader::Create(s_BasePath + "/res/shaders/EditorOutline.shader"));
+    // init unlit shader
+    _unlitShader.reset(Shader::Create(s_BasePath + "/res/shaders/Unlit.shader"));
+
     // init matrix buffer, we pass no data since we dont have the camera info yet
     // but we pass the size so GPU can reserve the space for later use
     _matrixBuffer.reset(UniformBuffer::Create(nullptr, sizeof(glm::mat4)));
     _matrixBuffer->BindIndex(0);
-    _editorLitShader->SetUniformBlockBinding("Matrices", 0); // TODO: we may need to keep track of block bindings for different UBOs
-    _gridShader->SetUniformBlockBinding("Matrices", 0);
+     // TODO: we may need to keep track of block bindings for different UBOs
+    _editorLitShader->SetUniformBlockBinding("Matrices", 0);
+    _editorOutlineShader->SetUniformBlockBinding("Matrices", 0);
+    _unlitShader->SetUniformBlockBinding("Matrices", 0);
+    _gridShader->SetUniformBlockBinding("Matrices", 0);    
 }
 
 GLRenderer::~GLRenderer() 
@@ -84,6 +92,17 @@ void GLRenderer::RenderInternal(const Scene& scene)
         _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
         mesh->renderInfo.ib->Bind();
         glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
+
+        if(mesh->selected) // draw outline
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(GL_FRONT);
+            _editorOutlineShader->Bind();
+            _editorOutlineShader->SetMatrix4("M", m);
+            _editorOutlineShader->SetVec2("ScreenSize", scene.editorCamera->GetSize());
+            glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
+            glDisable(GL_CULL_FACE);
+        }
     }
 
     // transparent objects

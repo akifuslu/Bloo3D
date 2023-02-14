@@ -26,6 +26,10 @@ class Camera
         {
             return _height;
         }
+        inline glm::vec2 GetSize() const
+        {
+            return {_width, _height};
+        }
         inline glm::mat4 GetViewProj() const
         {
             return _viewProj;

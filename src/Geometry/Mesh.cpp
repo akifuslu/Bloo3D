@@ -8,24 +8,15 @@
 #include "pch.h"
 
 Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
-    : _v0(v0), _v1(v1), _v2(v2)
+    : v0(v0), v1(v1), v2(v2)
 {
-    _v0v1 = v1->pos - v0->pos;
-    _v0v2 = v2->pos - v0->pos;
+    v0v1 = v1->pos - v0->pos;
+    v0v2 = v2->pos - v0->pos;
 
-//    if(v0->hasNormal && v1->hasNormal && v2->hasNormal)
-//    {
-    // for now smooth shading only (imported meshes guarenteed to have normals)
-        smooth = true;
-        _v0v1N = v1->normal - v0->normal;
-        _v0v2N = v2->normal - v0->normal;
-//    }
-    // else
-    // {
-    //     smooth = false;
-    //     normal = normalize(cross(_v0v1, _v0v2));
-    // }
-    aabb = AABB(_v0->pos, _v1->pos, _v2->pos);
+    v0v1N = v1->normal - v0->normal;
+    v0v2N = v2->normal - v0->normal;
+    aabb = AABB(v0->pos, v1->pos, v2->pos);
+    smooth = true; // by default
 }
 
 Mesh::Mesh()
@@ -60,33 +51,33 @@ void Mesh::BuildBVH()
 
 bool Triangle::RayCast(const Ray& ray, RayHit* hit)
 {
-    auto pvec = cross(ray.dir, _v0v2);
-    float det = dot(_v0v1, pvec);
+    auto pvec = cross(ray.dir, v0v2);
+    float det = dot(v0v1, pvec);
     if (std::fabs(det) < 1e-6)
     {            
         return false;
     }
 
     float invDet = 1.0 / det;
-    auto tvec = ray.orig - _v0->pos;
+    auto tvec = ray.orig - v0->pos;
     float u = dot(tvec, pvec) * invDet;
     if (u < 0 || u > 1)
         return false;
 
-    auto qvec = cross(tvec, _v0v1);
+    auto qvec = cross(tvec, v0v1);
     float v = dot(ray.dir, qvec) * invDet;
     if (v < 0 || u + v > 1)
         return false;
-    float t = dot(_v0v2, qvec) * invDet;
+    float t = dot(v0v2, qvec) * invDet;
     if(t < 0)
     {
         return false;
     }
     hit->distance = t;
-    hit->point = _v0->pos + u * _v0v1 + v * _v0v2;
+    hit->point = v0->pos + u * v0v1 + v * v0v2;
     if(smooth)
     {
-        hit->normal = normalize(_v0->normal + u * _v0v1N + v * _v0v2N);
+        hit->normal = normalize(v0->normal + u * v0v1N + v * v0v2N);
     }
     else
     {
@@ -142,4 +133,23 @@ void Mesh::UpdateRenderInfo()
     // later we should do partial updates whenever possible
     renderInfo.vb->Update(_verts.data(), _verts.size() * sizeof(Vertex)); // we assume that no aliasing occurs in Vertex struct. TODO: provide a solution for possible aliasing
     renderInfo.ib->Update(_inds.data(), _inds.size());
+}
+
+void Mesh::RecalculateNormals()
+{
+    for(auto& vert: _verts)
+    {
+        vert.normal = glm::vec3(0);
+    }
+    for(auto& tri: _tris)
+    {
+        auto n = normalize(cross(tri.v0v1, tri.v0v2));
+        tri.v0->normal += n;
+        tri.v1->normal += n;
+        tri.v2->normal += n;
+    }
+    for(auto& vert: _verts)
+    {
+        vert.normal = normalize(vert.normal);
+    }
 }
