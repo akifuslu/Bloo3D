@@ -8,6 +8,7 @@
 #include "glm/gtx/euler_angles.hpp"
 #include <glm/gtx/string_cast.hpp>
 
+
 Camera::Camera( float fov,
                 float near,
                 float far,
@@ -40,7 +41,7 @@ void Camera::OnUpdate()
     {
         if(Input::GetKey(KeyCode::SHIFT)) // pan
         {
-            auto mov = transform.Right() * delta.x + transform.Up() * delta.y;
+            auto mov = transform.Right() * -delta.x + transform.Up() * delta.y;
             transform.SetLocation(transform.GetLocation() + mov * 0.1f);
         }
         else if(Input::GetKey(KeyCode::CONTROL)) // zoom
@@ -58,7 +59,7 @@ void Camera::OnUpdate()
         }
         else // orbit
         {
-            auto rot = glm::vec3(delta.y, -delta.x, 0);
+            auto rot = glm::vec3(delta.y, delta.x, 0);
             auto center = transform.GetLocation() + transform.Forward() * 5.0f;
             transform.SetLocation(center);
             transform.SetRotation(transform.GetRotation() + rot);
@@ -80,8 +81,8 @@ void Camera::OnResize(int width, int height)
 
 void Camera::RebuildMatrix()
 {
-    _view = glm::lookAt(transform.GetLocation(), transform.GetLocation() + transform.Forward(), transform.Up());    
-    _proj = glm::perspective(glm::radians(_fov), _aspect, _near, _far);
+    _view = glm::lookAtLH(transform.GetLocation(), transform.GetLocation() + transform.Forward(), transform.Up());    
+    _proj = glm::perspectiveLH(glm::radians(_fov), _aspect, _near, _far);
     _viewProj = _proj * _view;
 
     _invView = inverse(_view);

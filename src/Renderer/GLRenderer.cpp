@@ -96,7 +96,7 @@ void GLRenderer::RenderInternal(const Scene& scene)
         if(mesh->selected) // draw outline
         {
             glEnable(GL_CULL_FACE);
-            glCullFace(GL_FRONT);
+            glCullFace(GL_BACK);
             _editorOutlineShader->Bind();
             _editorOutlineShader->SetMatrix4("M", m);
             _editorOutlineShader->SetVec2("ScreenSize", scene.editorCamera->GetSize());
