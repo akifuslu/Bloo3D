@@ -18,12 +18,12 @@ GLRenderer::GLRenderer()
     _grid.reset(new ScreenQuad());
     _gridShader.reset(Shader::Create(s_BasePath + "/res/shaders/InfiniteGrid.shader"));
     // init unlit shader(for now)
-    _pShader.reset(Shader::Create(s_BasePath + "/res/shaders/SimpleLit.shader"));
+    _editorLitShader.reset(Shader::Create(s_BasePath + "/res/shaders/EditorLit.shader"));
     // init matrix buffer, we pass no data since we dont have the camera info yet
     // but we pass the size so GPU can reserve the space for later use
     _matrixBuffer.reset(UniformBuffer::Create(nullptr, sizeof(glm::mat4)));
     _matrixBuffer->BindIndex(0);
-    _pShader->SetUniformBlockBinding("Matrices", 0); // TODO: we may need to keep track of block bindings for different UBOs
+    _editorLitShader->SetUniformBlockBinding("Matrices", 0); // TODO: we may need to keep track of block bindings for different UBOs
     _gridShader->SetUniformBlockBinding("Matrices", 0);
 }
 
@@ -67,20 +67,20 @@ void GLRenderer::RenderInternal(const Scene& scene)
     }
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_LESS);
-    auto viewProj = scene.mainCam->GetViewProj();
+    auto viewProj = scene.editorCamera->GetViewProj();
     _matrixBuffer->Update(&viewProj[0][0], sizeof(glm::mat4));
     // render others
-    for(auto& mesh: scene.meshes)
+    for(auto& mesh: scene.GetMeshes())
     {
         mesh->UpdateRenderInfo();
         auto m = mesh->transform.LocalToWorld();
         auto tim = mesh->transform.T_WorldToLocal();
-        _pShader->Bind();
-        //_pShader->SetMatrix4("VP", viewProj);
-        _pShader->SetMatrix4("M", m);
-        _pShader->SetMatrix4("T_IM", tim);
-        _pShader->SetVec3("Light.pos", {0, 3, -3});
-        _pShader->SetVec3("Light.color", {0, 0, 5});
+        _editorLitShader->Bind();
+        _editorLitShader->SetMatrix4("M", m);
+        _editorLitShader->SetMatrix4("T_IM", tim);
+        _editorLitShader->SetVec3("Light.dir", scene.editorLight->transform.Forward());
+        _editorLitShader->SetVec3("Light.color", scene.editorLight->GetColorPower());
+        _editorLitShader->SetVec3("CameraPos", scene.editorCamera->transform.GetLocation());
         _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
         mesh->renderInfo.ib->Bind();
         glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
@@ -91,11 +91,11 @@ void GLRenderer::RenderInternal(const Scene& scene)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
     // render grid last
     _gridShader->Bind();
-    _gridShader->SetFloat("CameraY", scene.mainCam->transform.GetLocation().y);
-    _gridShader->SetFloat("Near", scene.mainCam->GetNear());
-    _gridShader->SetFloat("Far", scene.mainCam->GetFar());
-    _gridShader->SetMatrix4("InvView", scene.mainCam->GetInvView());
-    _gridShader->SetMatrix4("InvProj", scene.mainCam->GetInvProj());
+    _gridShader->SetFloat("CameraY", scene.editorCamera->transform.GetLocation().y);
+    _gridShader->SetFloat("Near", scene.editorCamera->GetNear());
+    _gridShader->SetFloat("Far", scene.editorCamera->GetFar());
+    _gridShader->SetMatrix4("InvView", scene.editorCamera->GetInvView());
+    _gridShader->SetMatrix4("InvProj", scene.editorCamera->GetInvProj());
     _vao->AddBuffer(_grid->renderInfo.vb.get(), *_grid->renderInfo.layout.get());
     _grid->renderInfo.ib->Bind();
     glDrawElements(GL_TRIANGLES, _grid->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);

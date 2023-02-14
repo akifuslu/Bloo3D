@@ -29,7 +29,27 @@ class Light : public Object
         {
             return _power;
         }
+        inline glm::vec3 GetColorPower() const
+        {
+            return _color * _power;
+        }
     protected:
         glm::vec3 _color;
         float _power;
 };
+
+class PointLight : public Light
+{
+    public:
+        PointLight() : Light() {}
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+};
+
+class DirectionalLight : public Light
+{
+    public:
+        DirectionalLight() : Light() {}
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+};
+
+

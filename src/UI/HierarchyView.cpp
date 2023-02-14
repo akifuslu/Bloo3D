@@ -16,13 +16,13 @@ bool HierarchyView::OnGUI()
     
     ImGui::Begin("Hierarchy");
 
-    for(auto& obj: _scene->objects)
+    for(auto& obj: _scene->GetObjects())
     {
         ImGuiTreeNodeFlags flags = _baseFlags | (obj->selected ? ImGuiTreeNodeFlags_Selected : 0);
         bool open = ImGui::TreeNodeEx((void*)(uint64_t)(uint32_t)obj->id, flags, "%s", obj->name.c_str());
         if (ImGui::IsItemClicked())
         {
-            for(auto& obj2 : _scene->objects) // TODO: iterate only on currently selected objects?
+            for(auto& obj2 : _scene->GetObjects()) // TODO: iterate only on currently selected objects?
             {
                 obj2->selected = false;
             }

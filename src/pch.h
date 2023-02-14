@@ -2,6 +2,7 @@
 
 
 #include <vector>
+#include <list>
 #include <memory>
 #include <iostream>
 #include <string>

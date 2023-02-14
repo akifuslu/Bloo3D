@@ -2,7 +2,7 @@
 #include "Geometry/Mesh.h"
 #include "Camera/Camera.h"
 #include "Geometry/Ray.h"
-#include "Light/PointLight.h"
+#include "Light/Light.h"
 #include "Material/Material.h"
 #include "GPU/Texture.h"
 

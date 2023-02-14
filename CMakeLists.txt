@@ -14,7 +14,7 @@ set (SRC
         src/Camera/Camera.cpp
         src/Geometry/Mesh.cpp
         src/Geometry/ScreenQuad.cpp
-        src/Light/PointLight.cpp
+        src/Light/Light.cpp
         src/Material/Material.cpp
         src/Scene/Object.cpp
         src/UI/UIManager.cpp

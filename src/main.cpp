@@ -3,7 +3,7 @@
 #include "Renderer/Raytracer.h"
 #include "Importer.h"
 #include "Camera/Camera.h"
-#include "Light/PointLight.h"
+#include "Light/Light.h"
 #include "Material/Material.h"
 #include "Scene/Object.h"
 #include "Window.h"
@@ -51,6 +51,10 @@ int main(void)
     camera->transform.SetLocation(glm::vec3(0, 2, -5));
     camera->transform.SetRotation(glm::vec3(15, 0, 0));
 
+    std::unique_ptr<DirectionalLight> editorLight = std::make_unique<DirectionalLight>();
+    editorLight->SetColor({1, 1, 1});
+    editorLight->SetPower(1);
+    editorLight->transform.SetRotation({15, 0, 0});
 
     // create renderer
     Raytracer raytracer(camera.get(), to.get());
@@ -81,14 +85,13 @@ int main(void)
     std::unique_ptr<UIManager> uiManager = std::make_unique<UIManager>(window.get());
 
     Scene testScene;
-    testScene.mainCam = camera.get();
-    testScene.meshes.push_back(mesh.get());
-    renderer->SetMode(GLRenderMode::DEFAULT);
-
-    testScene.objects.push_back(mesh.get());
-    testScene.objects.push_back(light.get());
+    testScene.editorCamera = camera.get();
+    testScene.editorLight = editorLight.get();
+    testScene.AddObject(mesh.get());
+    //testScene.AddObject(light.get());
 
     uiManager->SetScene(&testScene);
+    renderer->SetMode(GLRenderMode::DEFAULT);
 
     while (!window->ShouldClose())
     {
