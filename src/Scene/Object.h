@@ -18,6 +18,7 @@ class Object
 {
     public:
         Object()
+            : transform(this)
         {
             id = s_idCounter++;
             selected = false;

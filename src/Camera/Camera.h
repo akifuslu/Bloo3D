@@ -2,11 +2,11 @@
 
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
-#include "Scene/Transform.h"
+#include "Scene/Object.h"
 
 struct Ray;
 
-class Camera
+class Camera : public Object
 {
     public:
         Camera(float fov,
@@ -50,7 +50,6 @@ class Camera
         {
             return _far;
         }
-        Transform transform;
     private:
         void RebuildMatrix();
         glm::mat4 _proj;

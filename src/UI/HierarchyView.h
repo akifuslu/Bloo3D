@@ -2,6 +2,7 @@
 
 #include "imgui.h"
 class Scene;
+class Object;
 
 class HierarchyView
 {
@@ -11,6 +12,7 @@ class HierarchyView
         void Bind(Scene* scene);
         void UnBind();
     private:
+        void DrawHierRecur(Object* obj);
         Scene* _scene = nullptr;
         ImGuiTreeNodeFlags _baseFlags;
 };

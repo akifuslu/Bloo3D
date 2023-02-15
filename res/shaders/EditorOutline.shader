@@ -28,7 +28,7 @@ void main()
 #shader FRAGMENT
 #version 410
 
-uniform vec3 OutlineColor = vec3(1.0, 0.6667, 0.0);
+uniform vec3 OutlineColor = vec3(0.39608,  0.58431,  0.91373);
 out vec4 color;
 
 void main()

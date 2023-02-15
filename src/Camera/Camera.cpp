@@ -14,7 +14,7 @@ Camera::Camera( float fov,
                 float far,
                 u_int32_t width,
                 u_int32_t height) 
-    : _fov(fov), _near(near), _far(far), _width(width), _height(height)
+    : Object(), _fov(fov), _near(near), _far(far), _width(width), _height(height)
 {
     _aspect = _width / (float)_height;        
     RebuildMatrix();

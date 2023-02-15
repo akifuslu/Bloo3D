@@ -68,6 +68,12 @@ int main(void)
     std::unique_ptr<Mesh> cube = std::make_unique<Mesh>();
     Importer::Import(s_BasePath + "/res/cube.obj", cube.get());
     cube->name = "Cube";
+    std::unique_ptr<Mesh> cube2 = std::make_unique<Mesh>();
+    Importer::Import(s_BasePath + "/res/cube.obj", cube2.get());
+    cube2->name = "Cube2";
+    std::unique_ptr<Mesh> cube3 = std::make_unique<Mesh>();
+    Importer::Import(s_BasePath + "/res/cube.obj", cube3.get());
+    cube3->name = "Cube3";
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -93,7 +99,14 @@ int main(void)
     testScene.editorLight = editorLight.get();
     testScene.AddObject(mesh.get());
     testScene.AddObject(cube.get());
+    testScene.AddObject(cube2.get());
+    testScene.AddObject(cube3.get());
+
     //testScene.AddObject(light.get());
+
+    cube->transform.SetParent(&mesh->transform);
+    cube2->transform.SetParent(&mesh->transform);
+    cube3->transform.SetParent(&cube2->transform);
 
     uiManager->SetScene(&testScene);
     renderer->SetMode(GLRenderMode::DEFAULT);
