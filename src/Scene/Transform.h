@@ -110,11 +110,9 @@ class Transform
         void RebuildMat()
         { 
             _localToWorld = glm::translate(_location) * glm::toMat4(glm::quat(glm::radians(_rotation))) * glm::scale(_scale);
-            Transform* tmp = _parent;
-            while(tmp != nullptr)
+            if(_parent != nullptr)
             {
-                _localToWorld = tmp->_localToWorld * _localToWorld;
-                tmp = tmp->_parent;
+                _localToWorld = _parent->_localToWorld * _localToWorld;
             }
 
             _worldToLocal = inverse(_localToWorld);
