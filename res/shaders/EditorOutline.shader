@@ -13,7 +13,7 @@ uniform mat4 M; // model
 uniform mat4 T_IM; // transposed inverse model
 uniform vec2 ScreenSize = vec2(1024, 768);
 
-uniform float OutlineWidth = 3;
+uniform float OutlineWidth = 5;
 
 void main()
 {
@@ -28,7 +28,7 @@ void main()
 #shader FRAGMENT
 #version 410
 
-uniform vec3 OutlineColor = vec3(0.39608,  0.58431,  0.91373);
+uniform vec3 OutlineColor = vec3(0.0, 0.3686, 1.0);
 out vec4 color;
 
 void main()

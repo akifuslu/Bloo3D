@@ -50,7 +50,7 @@ void GLRenderer::OnResize(int width, int height)
     glViewport(0, 0, width, height);
 }
 
-void GLRenderer::Render(const Scene& scene) 
+void GLRenderer::Render(Scene& scene) 
 {
     if(_mode == GLRenderMode::DEFAULT)
     {
@@ -66,7 +66,7 @@ void GLRenderer::Render(const Scene& scene)
     }
 }
 
-void GLRenderer::RenderInternal(const Scene& scene)
+void GLRenderer::RenderInternal(Scene& scene)
 {
     GLenum err;
     while((err = glGetError()) != GL_NO_ERROR)
@@ -92,18 +92,32 @@ void GLRenderer::RenderInternal(const Scene& scene)
         _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
         mesh->renderInfo.ib->Bind();
         glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
-
+    }
+    // render outlines
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+    for(auto& mesh: scene.GetMeshes())
+    {
         if(mesh->selected) // draw outline
         {
-            glEnable(GL_CULL_FACE);
-            glCullFace(GL_BACK);
+            auto m = mesh->transform.LocalToWorld();
             _editorOutlineShader->Bind();
             _editorOutlineShader->SetMatrix4("M", m);
             _editorOutlineShader->SetVec2("ScreenSize", scene.editorCamera->GetSize());
+            if(scene.activeObject.Get() == mesh)
+            {
+                _editorOutlineShader->SetVec3("OutlineColor", {0.0, 0.3686, 1.0});
+            }
+            else
+            {
+                _editorOutlineShader->SetVec3("OutlineColor", {0.39608,  0.58431,  0.91373});
+            }
+            _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
+            mesh->renderInfo.ib->Bind();
             glDrawElements(GL_TRIANGLES, mesh->renderInfo.ib->GetCount(), GL_UNSIGNED_INT, nullptr);
-            glDisable(GL_CULL_FACE);
         }
     }
+    glDisable(GL_CULL_FACE);
 
     // transparent objects
     glEnable(GL_BLEND);

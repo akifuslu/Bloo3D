@@ -34,8 +34,19 @@ Ray Camera::GetRay(int x, int y)
     return Ray(transform.GetLocation(), dir);
 }
 
+Ray Camera::ScreenPointToRay(glm::ivec2 point)
+{
+    int x = point.x;
+    int y = _height - point.y;
+    return GetRay(x, y);
+}
+
+
 void Camera::OnUpdate()
 {
+    if(Input::MouseOnUI() || Input::KeyboardOnUI()) // do not transform camera if user interacting with ui
+        return;
+
     auto delta = Input::GetMouseScroll();
     if(length(delta) > 0)
     {

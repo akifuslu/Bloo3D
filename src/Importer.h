@@ -35,6 +35,7 @@ namespace Importer
         {
             mesh->RecalculateNormals();
         }
+        mesh->BuildBVH();
     }
 
     bool Import(const std::string& filepath, Mesh* mesh)

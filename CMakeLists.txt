@@ -17,6 +17,7 @@ set (SRC
         src/Light/Light.cpp
         src/Material/Material.cpp
         src/Scene/Object.cpp
+        src/Scene/Scene.cpp
         src/UI/UIManager.cpp
         src/UI/HierarchyView.cpp
         src/UI/InspectorView.cpp
@@ -32,6 +33,7 @@ set (SRC
         src/GPU/GL/GLShader.cpp
         src/GPU/GL/GLTexture.cpp
         src/GPU/GL/GLUniformBuffer.cpp
+        src/Interactors/ObjectModeInteractor.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp

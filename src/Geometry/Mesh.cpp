@@ -98,6 +98,7 @@ bool Mesh::RayCast(const Ray& ray, RayHit* hit)
         // converting normals actually transpose(inverse(localToWorld))
         // inverse of localToWorld is just worldToLocal
         hit->normal = normalize(transpose(transform.WorldToLocal()) * glm::vec4(hit->normal, 0.0f)); 
+        hit->object = this;
     }
     return f;
 }

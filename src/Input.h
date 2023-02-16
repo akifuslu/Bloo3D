@@ -36,6 +36,8 @@ class Input
         static bool GetMouseButton(MouseButton button);
         static bool GetMouseButtonDown(MouseButton button);
         static bool GetMouseButtonUp(MouseButton button);
+        static bool MouseOnUI();
+        static bool KeyboardOnUI();
         static glm::ivec2 GetMousePosition();
         static glm::vec2 GetMouseScroll();
     private:

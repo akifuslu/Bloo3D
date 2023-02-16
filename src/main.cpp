@@ -1,5 +1,3 @@
-#include "ShaderLoader.h"
-#include "ImageLoader.h"
 #include "Renderer/Raytracer.h"
 #include "Importer.h"
 #include "Camera/Camera.h"
@@ -16,6 +14,7 @@
 #include "UI/InspectorView.h"
 #include "Logger.h"
 #include "Input.h"
+#include "Interactors/ObjectModeInteractor.h"
 
 #include "pch.h"
 
@@ -62,7 +61,6 @@ int main(void)
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
     mesh->name = "Monki";
     Importer::Import(s_BasePath + "/res/monkey.obj", mesh.get());
-    mesh->BuildBVH();
     raytracer.AddMesh(mesh.get());
 
     std::unique_ptr<Mesh> cube = std::make_unique<Mesh>();
@@ -111,6 +109,7 @@ int main(void)
     uiManager->SetScene(&testScene);
     renderer->SetMode(GLRenderMode::DEFAULT);
 
+    ObjectModeInteractor interactor(&testScene);
     while (!window->ShouldClose())
     {
         renderer->Clear();
@@ -135,6 +134,7 @@ int main(void)
         window->Poll();
 
         camera->OnUpdate();
+        interactor.OnUpdate();
 
         int Estate = glfwGetKey(window->Get(), GLFW_KEY_E);
         if (Estate == GLFW_PRESS)

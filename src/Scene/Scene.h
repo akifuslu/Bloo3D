@@ -10,36 +10,11 @@ class Scene
 {
     public:
         Scene(){}
-        inline void AddObject(Object* obj)
-        {
-            switch(obj->type)
-            {
-                case ObjectType::MESH:
-                _meshes.push_back(dynamic_cast<Mesh*>(obj));
-                break;
-                case ObjectType::LIGHT:
-                _lights.push_back(dynamic_cast<Light*>(obj));
-                break;
-                default:
-                break;
-            }
-            _objects.push_back(obj);
-        }
-        inline void RemoveObject(Object* obj)
-        {
-            switch(obj->type)
-            {
-                case ObjectType::MESH:
-                _meshes.remove(dynamic_cast<Mesh*>(obj));
-                break;
-                case ObjectType::LIGHT:
-                _lights.remove(dynamic_cast<Light*>(obj));
-                break;
-                default:
-                break;
-            }
-            _objects.remove(obj);
-        }
+        bool Raycast(const Ray& ray, RayHit* hit);
+        void AddObject(Object* obj);
+        void RemoveObject(Object* obj);
+        void SelectObject(Object* obj, bool additive=false);
+        void DeselectAll();
         inline const std::list<Object*>& GetObjects() const
         {
             return _objects;
@@ -52,10 +27,10 @@ class Scene
         {
             return _lights;
         }
-
         Camera* editorCamera;
         DirectionalLight* editorLight;
-        ReactiveProperty<Object*> selectedObject;
+        ReactiveProperty<Object*> activeObject;
+        std::list<Object*> selectedObjects;
     private:
         std::list<Object*> _objects;
         std::list<Mesh*> _meshes;

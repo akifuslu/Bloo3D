@@ -16,6 +16,7 @@ class Camera : public Object
                u_int32_t height);
 
         Ray GetRay(int x, int y);
+        Ray ScreenPointToRay(glm::ivec2 point);
         void OnUpdate();
         void OnResize(int width, int height);
         inline u_int32_t GetWidth() const

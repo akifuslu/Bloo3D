@@ -9,6 +9,9 @@ class ReactiveProperty
     public:
         ReactiveProperty() : _value() {}
         ReactiveProperty(T value) : _value(value) {}
+        ReactiveProperty(const ReactiveProperty& rp) = delete;
+        ReactiveProperty& operator=(ReactiveProperty rp) = delete;
+
         T Get()
         {
             return _value;

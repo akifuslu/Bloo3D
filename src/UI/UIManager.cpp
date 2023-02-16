@@ -31,7 +31,7 @@ void UIManager::SetScene(Scene* scene)
 {
     _scene = scene;
     _hierView.Bind(_scene);
-    _scene->selectedObject.Subscribe([&](Object* sel)
+    _scene->activeObject.Subscribe([&](Object* sel)
     {
         _inspView.Bind(sel);
     });

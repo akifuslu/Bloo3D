@@ -2,17 +2,21 @@
 
 #include "glm/glm.hpp"
 
+class Object;
+
 struct RayHit
 {
     glm::vec3 point;
     glm::vec3 normal;
     float distance;
     int matIndex;
+    Object* object;
 
     RayHit()
     {
         distance = FLT_MAX;
         matIndex = -1;
+        object = nullptr;
     }
 };
 

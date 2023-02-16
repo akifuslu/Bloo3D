@@ -1,5 +1,6 @@
 #include "Input.h"
 
+#include "imgui.h"
 #include <GLFW/glfw3.h>
 #include "Logger.h"
 
@@ -145,4 +146,14 @@ glm::ivec2 Input::GetMousePosition()
 glm::vec2 Input::GetMouseScroll()
 {
     return _scroll;
+}
+
+bool Input::MouseOnUI()
+{
+    return ImGui::GetIO().WantCaptureMouse;
+}
+
+bool Input::KeyboardOnUI()
+{
+    return ImGui::GetIO().WantCaptureKeyboard;
 }

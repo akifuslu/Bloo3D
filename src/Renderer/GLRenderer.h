@@ -21,7 +21,7 @@ class GLRenderer
         ~GLRenderer();
         void Clear();
         void OnResize(int width, int height);
-        void Render(const Scene& scene);
+        void Render(Scene& scene);
         inline void SetMode(GLRenderMode mode)
         {
             bool changed = _mode != mode;
@@ -36,7 +36,7 @@ class GLRenderer
             return _mode;
         }
     private:
-        void RenderInternal(const Scene& scene);        
+        void RenderInternal(Scene& scene);        
         void RenderInternalQuad();
         std::unique_ptr<GLVertexArray> _vao; // single VAO for now
         std::unique_ptr<ScreenQuad> _quad;
