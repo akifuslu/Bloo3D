@@ -115,6 +115,16 @@ void GLShader::SetFloat(const std::string& name, float value)
     glUniform1f(GetUniformLocation(name), value);
 }
 
+void GLShader::SetInt(const std::string& name, int value)
+{
+    glUniform1i(GetUniformLocation(name), value);
+}
+
+void GLShader::SetBool(const std::string& name, bool value)
+{
+    glUniform1i(GetUniformLocation(name), value);
+}
+
 void GLShader::SetVec3(const std::string& name, glm::vec3 value)
 {
     glUniform3f(GetUniformLocation(name), value.x, value.y, value.z);

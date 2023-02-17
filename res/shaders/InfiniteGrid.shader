@@ -33,7 +33,9 @@ layout(std140) uniform Matrices
 
 uniform float Near;
 uniform float Far;
-uniform float CameraY;
+uniform vec3 CameraPos;
+uniform int Plane = 0; // 0 x, 1 y, 2 z
+uniform bool ForceFar;
 
 in vec3 nearPoint;
 in vec3 farPoint;
@@ -61,7 +63,8 @@ float linearDepth(vec3 wp)
 
 vec4 grid(vec3 wp, float scale)
 {
-    vec2 coord = wp.xz * scale;
+    vec2 coord = (Plane == 0) ? wp.yz : ((Plane == 1) ? wp.xz : wp.xy);
+    coord *= scale;
     vec2 dv = fwidth(coord);
     vec2 grid = abs(fract(coord-0.5)-0.5) / dv;
     float line = min(grid.x, grid.y);
@@ -69,7 +72,20 @@ vec4 grid(vec3 wp, float scale)
     float r = mix(0.2, 1.0, step(abs(coord.y), min(1.0, dv.y)));
     float b = mix(0.2, 1.0, step(abs(coord.x), min(1.0, dv.x)));
 
-    return vec4(r, 0.2, b, 1.0 - min(line, 1.0));
+    vec4 color;
+    if(Plane == 0)
+    {
+        color = vec4(0.2, r, b, 1.0 - min(line, 1.0));
+    }
+    else if(Plane == 1)
+    {
+        color = vec4(r, 0.2, b, 1.0 - min(line, 1.0));
+    }
+    else
+    {
+        color = vec4(r, b, 0.2, 1.0 - min(line, 1.0));
+    }
+    return color;
 }
 
 vec4 gridAlt(vec3 wp, float scale)
@@ -81,25 +97,29 @@ vec4 gridAlt(vec3 wp, float scale)
 
 void main()
 {
-    float t = -nearPoint.y / (farPoint.y - nearPoint.y);
+    float t = -nearPoint[Plane] / (farPoint[Plane] - nearPoint[Plane]);
+    if(ForceFar)
+    {
+        t = 0.89;
+    }
     vec3 wp = nearPoint + t * (farPoint - nearPoint);   
-    float y = abs(CameraY) + 0.01;
+    float d = abs(CameraPos[Plane]) + 0.01;
     float scale = 10.0;
     float gridMix = 0;
     float a, b;
-    if(y < 10)
+    if(d < 10)
     {
         a = 0;
         b = 10;
         scale = 10.0;
     }
-    else if(y < 50)
+    else if(d < 50)
     {
         a = 10;
         b = 50;
         scale = 1.0;
     }
-    else if(y < 250)
+    else if(d < 250)
     {
         a = 50;
         b = 250;
@@ -111,7 +131,7 @@ void main()
         b = 1000;
         scale = 0.01;
     }
-    gridMix = map(y, a, b, 0, 1);
+    gridMix = map(d, a, b, 0, 1);
     float scale2 = scale / 10.0;
     color = mix(grid(wp, scale), grid(wp, scale2), gridMix) * float(t > 0.0);
     float ld = linearDepth(wp);

@@ -124,7 +124,10 @@ void GLRenderer::RenderInternal(Scene& scene)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
     // render grid last
     _gridShader->Bind();
-    _gridShader->SetFloat("CameraY", scene.editorCamera->transform.GetLocation().y);
+    auto gp = scene.editorCamera->GetGridPlane();
+    _gridShader->SetInt("Plane", gp.first);
+    _gridShader->SetBool("ForceFar", gp.second);
+    _gridShader->SetVec3("CameraPos", scene.editorCamera->transform.GetLocation());
     _gridShader->SetFloat("Near", scene.editorCamera->GetNear());
     _gridShader->SetFloat("Far", scene.editorCamera->GetFar());
     _gridShader->SetMatrix4("InvView", scene.editorCamera->GetInvView());

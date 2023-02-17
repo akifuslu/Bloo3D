@@ -2,7 +2,10 @@
 
 #include "glm/glm.hpp"
 #include "glm/vec2.hpp"
+#include "glm/gtc/epsilon.hpp"
 #include "Scene/Object.h"
+
+#include <utility>
 
 struct Ray;
 
@@ -64,6 +67,20 @@ class Camera : public Object
         inline float GetFar() const
         {
             return _far;
+        }        
+        inline std::pair<int, bool> GetGridPlane() const
+        {
+            if(projection == CameraProjection::PERSPECTIVE)
+            {
+                return {1, false}; // always Y plane on perspective
+            }
+            else
+            {
+                if(glm::all(glm::epsilonEqual(transform.GetRotation(), glm::vec3(0, 0, 0), 0.01f))) return {2, true}; 
+                if(glm::all(glm::epsilonEqual(transform.GetRotation(), glm::vec3(0, -90, 0), 0.01f))) return {0, true}; 
+                if(glm::all(glm::epsilonEqual(transform.GetRotation(), glm::vec3(90, 0, 0), 0.01f))) return {1, true}; 
+            }
+            return {1, false};
         }
         CameraProjection projection;
     private:

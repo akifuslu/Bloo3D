@@ -85,7 +85,6 @@ void Camera::OnUpdate()
         // toggle pers/ortho
         projection = (projection == CameraProjection::PERSPECTIVE) ? 
                      CameraProjection::ORTHOGRAPHIC : CameraProjection::PERSPECTIVE;
-        
         RebuildMatrix();
     }
     else if(Input::GetKeyDown(KeyCode::N1)) // front view
