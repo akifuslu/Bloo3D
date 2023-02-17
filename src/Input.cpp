@@ -8,6 +8,8 @@ std::unordered_map<KeyCode, ButtonState> Input::_keyStates = std::unordered_map<
 std::unordered_map<MouseButton, ButtonState> Input::_mouseButtonStates = std::unordered_map<MouseButton, ButtonState>();
 glm::vec2 Input::_scroll = glm::vec2(0);
 glm::ivec2 Input::_mousePos = glm::ivec2(0);
+glm::ivec2 Input::_lastMousePos = glm::ivec2(0);
+glm::ivec2 Input::_screenSize = glm::ivec2(0);
 
 std::unordered_map<int, KeyCode> KeyLookup =
 {
@@ -21,6 +23,11 @@ std::unordered_map<int, KeyCode> KeyLookup =
     {GLFW_KEY_RIGHT_SHIFT,   KeyCode::SHIFT},
     {GLFW_KEY_LEFT_CONTROL,  KeyCode::CONTROL},
     {GLFW_KEY_RIGHT_CONTROL, KeyCode::CONTROL},
+    {GLFW_KEY_G,             KeyCode::G},
+    {GLFW_KEY_R,             KeyCode::R},
+    {GLFW_KEY_X,             KeyCode::X},
+    {GLFW_KEY_Y,             KeyCode::Y},
+    {GLFW_KEY_Z,             KeyCode::Z},
 };
 
 std::unordered_map<int, MouseButton> MouseButtonLookup =
@@ -70,6 +77,12 @@ void Input::NewFrame()
             mb.second = ButtonState::NONE;
         }
     }
+    _lastMousePos = _mousePos;
+}
+
+void Input::SetScreenSize(glm::ivec2 size)
+{
+    _screenSize = size;
 }
 
 void Input::SetKeyState(int key, int action)
@@ -141,6 +154,20 @@ bool Input::GetMouseButtonUp(MouseButton button)
 glm::ivec2 Input::GetMousePosition()
 {
     return _mousePos;
+}
+
+glm::vec2 Input::GetMousePositionNDC()
+{
+    float x = ((float)_mousePos.x / _screenSize.x) * 2 - 1;
+    float y = ((float)_mousePos.y / _screenSize.y) * 2 - 1;
+    return {x, y};
+}
+
+glm::vec2 Input::GetNormalizedMouseDelta()
+{
+    float x = (_mousePos.x - _lastMousePos.x) / (float)_screenSize.x;
+    float y = (_mousePos.y - _lastMousePos.y) / (float)_screenSize.y;
+    return {x, y};
 }
 
 glm::vec2 Input::GetMouseScroll()

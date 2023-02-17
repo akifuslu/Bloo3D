@@ -102,9 +102,9 @@ int main(void)
 
     //testScene.AddObject(light.get());
 
-    cube->transform.SetParent(&mesh->transform);
-    cube2->transform.SetParent(&mesh->transform);
-    cube3->transform.SetParent(&cube2->transform);
+    // cube->transform.SetParent(&mesh->transform);
+    // cube2->transform.SetParent(&mesh->transform);
+    // cube3->transform.SetParent(&cube2->transform);
 
     uiManager->SetScene(&testScene);
     renderer->SetMode(GLRenderMode::DEFAULT);

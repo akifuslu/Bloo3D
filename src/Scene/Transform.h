@@ -26,6 +26,11 @@ class Transform
         Transform& operator=(const Transform& other) = delete;
         std::function<void()> onUpdate;
 
+        void Translate(glm::vec3 translation)
+        {
+            _location += translation;
+            RebuildMat();
+        }
         inline Object* GetObject() const
         {
             return _object;
@@ -84,15 +89,15 @@ class Transform
         }
         inline glm::vec3 Right() const
         {
-            return _localToWorld[0];
+            return normalize(_localToWorld[0]);
         }
         inline glm::vec3 Up() const
         {
-            return _localToWorld[1];
+            return normalize(_localToWorld[1]);
         }
         inline glm::vec3 Forward() const
         {
-            return _localToWorld[2];
+            return normalize(_localToWorld[2]);
         }
         inline glm::mat4 LocalToWorld() const
         {

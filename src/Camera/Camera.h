@@ -35,6 +35,14 @@ class Camera : public Object
         {
             return _viewProj;
         }
+        inline glm::mat4 GetView() const
+        {
+            return _view;
+        }
+        inline glm::mat4 GetProj() const
+        {
+            return _proj;
+        }
         inline glm::mat4 GetInvView() const
         {
             return _invView;

@@ -75,6 +75,8 @@ void Window::Init(const WindowProps& props)
     glfwSetMouseButtonCallback(_window, mouseCB);
     glfwSetCursorPosCallback(_window, mousePosCB);
     glfwSetScrollCallback(_window, scrollCB);
+
+    Input::SetScreenSize({_width, _height});
 }
 
 void Window::Shutdown()
@@ -104,6 +106,7 @@ void Window::OnResize(int width, int height)
     _width = width;
     _height = height;
     _resized = true;
+    Input::SetScreenSize({width, height});
 }
 
 void Window::OnKeyInput(int key, int scancode, int action, int mods)
