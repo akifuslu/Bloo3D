@@ -6,6 +6,12 @@
 
 struct Ray;
 
+enum class CameraProjection
+{
+    PERSPECTIVE,
+    ORTHOGRAPHIC
+};
+
 class Camera : public Object
 {
     public:
@@ -59,6 +65,7 @@ class Camera : public Object
         {
             return _far;
         }
+        CameraProjection projection;
     private:
         void RebuildMatrix();
         glm::mat4 _proj;

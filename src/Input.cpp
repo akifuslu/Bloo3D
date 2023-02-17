@@ -28,6 +28,16 @@ std::unordered_map<int, KeyCode> KeyLookup =
     {GLFW_KEY_X,             KeyCode::X},
     {GLFW_KEY_Y,             KeyCode::Y},
     {GLFW_KEY_Z,             KeyCode::Z},
+    {GLFW_KEY_0,             KeyCode::N0},
+    {GLFW_KEY_1,             KeyCode::N1},
+    {GLFW_KEY_2,             KeyCode::N2},
+    {GLFW_KEY_3,             KeyCode::N3},
+    {GLFW_KEY_4,             KeyCode::N4},
+    {GLFW_KEY_5,             KeyCode::N5},
+    {GLFW_KEY_6,             KeyCode::N6},
+    {GLFW_KEY_7,             KeyCode::N7},
+    {GLFW_KEY_8,             KeyCode::N8},
+    {GLFW_KEY_9,             KeyCode::N9},
 };
 
 std::unordered_map<int, MouseButton> MouseButtonLookup =

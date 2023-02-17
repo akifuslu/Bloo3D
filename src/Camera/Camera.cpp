@@ -16,6 +16,7 @@ Camera::Camera( float fov,
                 u_int32_t height) 
     : Object(), _fov(fov), _near(near), _far(far), _width(width), _height(height)
 {
+    projection = CameraProjection::PERSPECTIVE; // default
     _aspect = _width / (float)_height;        
     RebuildMatrix();
     transform.onUpdate = std::bind(&Camera::RebuildMatrix, this);
@@ -78,6 +79,15 @@ void Camera::OnUpdate()
             transform.SetLocation(loc);
         }
     }
+
+    if(Input::GetKeyDown(KeyCode::N5))
+    {
+        // toggle pers/ortho
+        projection = (projection == CameraProjection::PERSPECTIVE) ? 
+                     CameraProjection::ORTHOGRAPHIC : CameraProjection::PERSPECTIVE;
+        
+        RebuildMatrix();
+    }
 }
 
 void Camera::OnResize(int width, int height)
@@ -93,9 +103,19 @@ void Camera::OnResize(int width, int height)
 void Camera::RebuildMatrix()
 {
     _view = glm::lookAtLH(transform.GetLocation(), transform.GetLocation() + transform.Forward(), transform.Up());    
-    _proj = glm::perspectiveLH(glm::radians(_fov), _aspect, _near, _far);
+    if(projection == CameraProjection::PERSPECTIVE)
+    {
+        _proj = glm::perspectiveLH(glm::radians(_fov), _aspect, _near, _far);
+    }
+    else
+    {
+        float ratioSize = atan(glm::radians(_fov / 2.0f)) * 2.0f;
+        float distance = length(transform.GetLocation());
+        float y = ratioSize * distance;
+        float x = ratioSize * distance * _aspect;
+        _proj = glm::orthoLH(-x, x, -y, y, -_far, _far);
+    }
     _viewProj = _proj * _view;
-
     _invView = inverse(_view);
     _invProj = inverse(_proj);
 }

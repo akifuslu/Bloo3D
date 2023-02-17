@@ -5,7 +5,8 @@
 
 enum class KeyCode
 {
-    Q, W, E, A, S, D, CONTROL, SHIFT, G, R, X, Y, Z    
+    Q, W, E, A, S, D, CONTROL, SHIFT, G, R, X, Y, Z, 
+    N0, N1, N2, N3, N4, N5, N6, N7, N8, N9     
 };
 
 enum class MouseButton
