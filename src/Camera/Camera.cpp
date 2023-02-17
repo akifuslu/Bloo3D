@@ -88,6 +88,22 @@ void Camera::OnUpdate()
         
         RebuildMatrix();
     }
+    else if(Input::GetKeyDown(KeyCode::N1)) // front view
+    {
+        projection = CameraProjection::ORTHOGRAPHIC;
+        transform.SetRotation({0, 0, 0});
+    }
+    else if(Input::GetKeyDown(KeyCode::N3)) // right view
+    {
+        projection = CameraProjection::ORTHOGRAPHIC;
+        transform.SetRotation({0, -90, 0});
+    }
+    else if(Input::GetKeyDown(KeyCode::N7)) // top view
+    {
+        projection = CameraProjection::ORTHOGRAPHIC;
+        transform.SetRotation({90, 0, 0});
+    }
+
 }
 
 void Camera::OnResize(int width, int height)
