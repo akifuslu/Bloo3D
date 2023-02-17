@@ -31,6 +31,11 @@ class Transform
             _location += translation;
             RebuildMat();
         }
+        void Scale(glm::vec3 scale)
+        {
+            _scale += scale;
+            RebuildMat();
+        }
         inline Object* GetObject() const
         {
             return _object;

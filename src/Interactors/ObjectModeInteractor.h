@@ -25,6 +25,8 @@ class ObjectModeInteractor
         ObjectModeInteractor(Scene* scene);
         void OnUpdate();
     private:
+        glm::vec3 GetSelectionCenter();
+        glm::vec3 PositionOnWorldPlane(glm::ivec2 pos, glm::vec3 center);
         Scene* _scene;
         Mode _mode;
         Axis _axis;
