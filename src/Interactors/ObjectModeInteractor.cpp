@@ -34,19 +34,23 @@ void ObjectModeInteractor::OnUpdate()
         }   
         if(_scene->selectedObjects.size() > 0)
         {
+            auto pos = Input::GetMousePosition();
+            auto center = GetSelectionCenter();
+            _startpos = PositionOnWorldPlane(pos, center);
             if(Input::GetKey(KeyCode::G))
             {
-                _lastpos = glm::vec3(0);
                 _mode = Mode::MOVE;
+                CacheTransforms();
             }
             else if(Input::GetKey(KeyCode::R))
             {
                 _mode = Mode::ROTATE;
+                CacheTransforms();
             }
             else if(Input::GetKey(KeyCode::S))
             {
-                _lastpos = glm::vec3(0);
                 _mode = Mode::SCALE;
+                CacheTransforms();
             }
         }
     }
@@ -71,74 +75,20 @@ void ObjectModeInteractor::OnUpdate()
         }
 
         auto pos = Input::GetMousePosition();
+        auto center = GetSelectionCenter();
+        auto wpos = PositionOnWorldPlane(pos, center);
+
         if(_mode == Mode::MOVE)
         {
-            auto center = GetSelectionCenter();
-            auto wpos = PositionOnWorldPlane(pos, center);
-            auto delta = wpos - _lastpos;
-            if(_axis == Axis::X)
-            {
-                delta.y = delta.z = 0;
-            }
-            if(_axis == Axis::Y)
-            {
-                delta.x = delta.z = 0;
-            }
-            if(_axis == Axis::Z)
-            {
-                delta.x = delta.y = 0;
-            }
-
-            if(length(_lastpos) > 0) // ugly workaround
-            {
-                for(auto& ob: _scene->selectedObjects)
-                {
-                    ob->transform.Translate(delta);
-                }
-            }
-            _lastpos = wpos;
+            OnMove(pos, center, wpos);
         }
         else if(_mode == Mode::ROTATE)
         {
-
+            OnRotate(pos, center, wpos);
         }
         else if(_mode == Mode::SCALE)
         {
-            auto center = GetSelectionCenter();
-            auto wpos = PositionOnWorldPlane(pos, center);
-            auto v1 = center - wpos;
-            auto v2 = center - _lastpos;
-
-            glm::vec3 scale(1);
-            if(_axis == Axis::X)
-            {
-                scale.y = scale.z = 0;
-                v1.y = v1.z = 0;
-                v2.y = v2.z = 0;
-            }
-            if(_axis == Axis::Y)
-            {
-                scale.x = scale.z = 0;
-                v1.x = v1.z = 0;
-                v2.x = v2.z = 0;
-            }
-            if(_axis == Axis::Z)
-            {
-                scale.x = scale.y = 0;
-                v1.x = v1.y = 0;
-                v2.x = v2.y = 0;
-            }
-            auto d1 = length(v1);
-            auto d2 = length(v2);
-            scale *= (d1 - d2);
-            if(length(_lastpos) > 0) // ugly workaround
-            {
-                for(auto& ob: _scene->selectedObjects)
-                {
-                    ob->transform.Scale(scale);
-                }
-            }
-            _lastpos = wpos;
+            OnScale(pos, center, wpos);
         }
     }
 }
@@ -164,3 +114,108 @@ glm::vec3 ObjectModeInteractor::PositionOnWorldPlane(glm::ivec2 pos, glm::vec3 c
     return cam->transform.GetLocation() + r.dir * dist / x;
 }
 
+void ObjectModeInteractor::CacheTransforms()
+{
+    _locationCache.clear();
+    _rotationCache.clear();
+    _scaleCache.clear();
+    for(auto& ob: _scene->selectedObjects)
+    {
+        _locationCache.push_back(ob->transform.GetLocation());
+        _rotationCache.push_back(ob->transform.GetRotation());
+        _scaleCache.push_back(ob->transform.GetScale());
+    }
+}
+
+void ObjectModeInteractor::OnMove(glm::ivec2 pos, glm::vec3 center, glm::vec3 wpos)
+{
+    auto delta = wpos - _startpos;
+    if(_axis == Axis::X)
+    {
+        delta.y = delta.z = 0;
+    }
+    if(_axis == Axis::Y)
+    {
+        delta.x = delta.z = 0;
+    }
+    if(_axis == Axis::Z)
+    {
+        delta.x = delta.y = 0;
+    }
+
+    int k = 0;
+    for(auto& ob: _scene->selectedObjects)
+    {
+        ob->transform.SetLocation(_locationCache[k] + delta);
+        k++;
+    }
+}
+
+void ObjectModeInteractor::OnRotate(glm::ivec2 pos, glm::vec3 center, glm::vec3 wpos)
+{
+    auto v1 = center - wpos;
+    auto v2 = center - _startpos;
+
+    auto rot = glm::degrees(glm::eulerAngles(glm::rotation(normalize(v2), normalize(v1))));
+    auto rlen = length(rot);
+    if(rlen < 0.01f) // preventing NAN
+    {
+        return;
+    }
+    if(_axis == Axis::X)
+    {
+        rot.y = rot.z = 0;
+    }
+    if(_axis == Axis::Y)
+    {
+        rot.x = rot.z = 0;
+    }
+    if(_axis == Axis::Z)
+    {
+        rot.x = rot.y = 0;
+    }
+
+    rot = normalize(rot) * rlen;
+
+    int k = 0;
+    for(auto& ob: _scene->selectedObjects)
+    {
+        ob->transform.SetRotation(_rotationCache[k] + rot);
+        k++;
+    }
+}
+
+void ObjectModeInteractor::OnScale(glm::ivec2 pos, glm::vec3 center, glm::vec3 wpos)
+{
+    auto v1 = center - wpos;
+    auto v2 = center - _startpos;
+
+    glm::vec3 scale(1);
+    if(_axis == Axis::X)
+    {
+        scale.y = scale.z = 0;
+        v1.y = v1.z = 0;
+        v2.y = v2.z = 0;
+    }
+    if(_axis == Axis::Y)
+    {
+        scale.x = scale.z = 0;
+        v1.x = v1.z = 0;
+        v2.x = v2.z = 0;
+    }
+    if(_axis == Axis::Z)
+    {
+        scale.x = scale.y = 0;
+        v1.x = v1.y = 0;
+        v2.x = v2.y = 0;
+    }
+    auto d1 = length(v1);
+    auto d2 = length(v2);
+    scale *= (d1 - d2);
+    int k = 0;
+    for(auto& ob: _scene->selectedObjects)
+    {
+        ob->transform.SetScale(_scaleCache[k] + scale);
+        k++;
+    }
+}

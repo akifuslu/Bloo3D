@@ -36,6 +36,11 @@ class Transform
             _scale += scale;
             RebuildMat();
         }
+        void Rotate(glm::vec3 rotation)
+        {
+            _rotation += rotation;
+            RebuildMat();
+        }
         inline Object* GetObject() const
         {
             return _object;
