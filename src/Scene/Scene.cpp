@@ -6,7 +6,6 @@
 bool Scene::Raycast(const Ray& ray, RayHit* hit)
 {
     bool hasHit = false;
-    // check meshes first
     for (auto& mesh: _meshes)
     {
         RayHit nhit;

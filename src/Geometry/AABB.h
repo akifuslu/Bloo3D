@@ -56,28 +56,18 @@ struct AABB
 
     bool Test(const Ray& ray)
     {
-        float imin = -FLT_MAX;
-        float imax = FLT_MAX;
-        float t0 = (extends[ray.sign[0]].x - ray.orig.x) * ray.invDir.x;
-        float t1 = (extends[1 - ray.sign[0]].x - ray.orig.x) * ray.invDir.x;
-        if(t0 > imin) imin = t0;
-        if(t1 < imax) imax = t1;
-        if(imin > imax) return false;
+        float tmin = 0.0f, tmax = INFINITY;
 
-        t0 = (extends[ray.sign[1]].y - ray.orig.y) * ray.invDir.y;
-        t1 = (extends[1 - ray.sign[1]].y - ray.orig.y) * ray.invDir.y;
-        if(t0 > imin) imin = t0;
-        if(t1 < imax) imax = t1;
-        if(imin > imax) return false;
+        for (int i = 0; i < 3; ++i) 
+        {
+            float t1 = (extends[0][i] - ray.orig[i]) * ray.invDir[i];
+            float t2 = (extends[1][i] - ray.orig[i]) * ray.invDir[i];
 
-        t0 = (extends[ray.sign[2]].z - ray.orig.z) * ray.invDir.z;
-        t1 = (extends[1 - ray.sign[2]].z - ray.orig.z) * ray.invDir.z;
-        if(t0 > t1) std::swap(t0, t1);
-        if(t0 > imin) imin = t0;
-        if(t1 < imax) imax = t1;
-        if(imin > imax) return false;
+            tmin = std::max(tmin, std::min(std::min(t1, t2), tmax));
+            tmax = std::min(tmax, std::max(std::max(t1, t2), tmin));
+        }
 
-        return true;
+        return tmin < tmax;
     }
 
 };

@@ -30,7 +30,7 @@ struct Ray
     Ray(glm::vec3 orig, glm::vec3 dir)
         :orig(orig), dir(dir)
     {
-        invDir = glm::vec3(1/dir.x, 1/dir.y, 1/dir.z);
+        invDir = 1.0f / dir;
         sign[0] = (dir.x > 0 ? 0 : 1);
         sign[1] = (dir.y > 0 ? 0 : 1);
         sign[2] = (dir.z > 0 ? 0 : 1);

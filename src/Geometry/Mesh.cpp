@@ -16,6 +16,12 @@ Triangle::Triangle(Vertex* v0, Vertex* v1, Vertex* v2)
     v0v1N = v1->normal - v0->normal;
     v0v2N = v2->normal - v0->normal;
     aabb = AABB(v0->pos, v1->pos, v2->pos);
+    for (size_t i = 0; i < 3; i++) // inflate bbox if its too thin
+    {
+        if(abs(aabb.extends[0][i] - aabb.extends[1][i]) < 1e-6)
+            aabb.extends[1][i] = aabb.extends[0][i] + 1e-6;
+    }
+    
     smooth = true; // by default
 }
 

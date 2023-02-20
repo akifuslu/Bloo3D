@@ -74,6 +74,8 @@ int main(void)
     Importer::Import(s_BasePath + "/res/cube.obj", cube3.get());
     cube3->name = "Cube3";
 
+    raytracer.AddMesh(cube.get());
+
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
     difMat->albedo = glm::vec3(0.0f, 0.25f, 0.75f);
@@ -82,6 +84,7 @@ int main(void)
 
     int matIndex = raytracer.AddMaterial(difMat.get());
     mesh->materialIndex = matIndex;
+    cube->materialIndex = matIndex;
 
 
     std::unique_ptr<PointLight> light = std::make_unique<PointLight>();
@@ -126,6 +129,7 @@ int main(void)
             if(renderer->GetMode() == GLRenderMode::RAYTRACER)
             {
                 raytracer.Render();
+                to->Bind(0);
             }
         }
 

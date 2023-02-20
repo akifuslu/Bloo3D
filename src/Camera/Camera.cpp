@@ -29,10 +29,19 @@ Ray Camera::GetRay(int x, int y)
     a = a * 2 - 1;
     b = b * 2 - 1;
 
-    glm::vec4 target = _invProj * glm::vec4(a, b, 1, 1);
-    glm::vec3 dir = glm::vec3(_invView * glm::vec4(glm::normalize(glm::vec3(target) / target.w), 0)); // World space
+    if(projection == CameraProjection::PERSPECTIVE)
+    {
+        glm::vec4 target = _invProj * glm::vec4(a, b, 1, 1);
+        glm::vec3 dir = glm::vec3(_invView * glm::vec4(glm::normalize(glm::vec3(target) / target.w), 0)); // World space
 
-    return Ray(transform.GetLocation(), dir);
+        return Ray(transform.GetLocation(), dir);
+    }
+    else // ORTHO
+    {
+        glm::vec4 orig = _invView * _invProj * glm::vec4(a, b, 0, 1);
+        orig /= orig.w;
+        return Ray(orig, transform.Forward());
+    }
 }
 
 Ray Camera::ScreenPointToRay(glm::ivec2 point)

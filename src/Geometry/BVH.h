@@ -114,7 +114,6 @@ class BVHNode : public IRayCastable
             RayHit rhit;
             bool l = left->RayCast(ray, &lhit);
             bool r = right->RayCast(ray, &rhit);
-
             *hit = lhit.distance < rhit.distance ? lhit : rhit; 
             return l || r;
         }
