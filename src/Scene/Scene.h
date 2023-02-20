@@ -11,6 +11,7 @@ class Scene
     public:
         Scene(){}
         bool Raycast(const Ray& ray, RayHit* hit);
+        Object* PickObject();
         void AddObject(Object* obj);
         void RemoveObject(Object* obj);
         void SelectObject(Object* obj, bool additive=false);

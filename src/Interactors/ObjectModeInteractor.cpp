@@ -20,12 +20,10 @@ void ObjectModeInteractor::OnUpdate()
         if(Input::GetMouseButtonDown(MouseButton::RIGHT))
         {
             bool additive = Input::GetKey(KeyCode::SHIFT);
-            auto pos = Input::GetMousePosition();
-            auto ray = _scene->editorCamera->ScreenPointToRay(pos);
-            RayHit hit;
-            if(_scene->Raycast(ray, &hit))
+            Object* obj = _scene->PickObject();
+            if(obj != nullptr)
             {
-                _scene->SelectObject(hit.object, additive);
+                _scene->SelectObject(obj, additive);
             }
             else
             {

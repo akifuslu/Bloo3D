@@ -33,7 +33,14 @@ void UIManager::SetScene(Scene* scene)
     _hierView.Bind(_scene);
     _scene->activeObject.Subscribe([&](Object* sel)
     {
-        _inspView.Bind(sel);
+        if(sel == nullptr)
+        {
+            _inspView.UnBind();
+        }
+        else
+        {
+            _inspView.Bind(sel);
+        }
     });
 }
 

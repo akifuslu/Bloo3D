@@ -8,6 +8,7 @@ bool InspectorView::OnGUI()
     if(_obj == nullptr)
     {
         ImGui::Text("No object has been selected.");
+        ImGui::End();
         return false;
     }
     _objInsp.OnGUI();
