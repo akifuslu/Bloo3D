@@ -11,5 +11,11 @@ namespace ImageLoader
     {
         return stbi_load(filepath.c_str(), &width, &height, &channels, 4);
     }
+
+    void Free(unsigned char* data)
+    {
+        stbi_image_free(data);
+    }
+
 }
 

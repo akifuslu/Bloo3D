@@ -13,7 +13,7 @@ class GLTexture : public Texture
         virtual void UnBind() override;
     private:
         unsigned int _rendererId;
-        unsigned int _unit;
         int _width;
         int _height;
+        int _numChannels;
 };

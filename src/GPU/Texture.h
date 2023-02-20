@@ -2,7 +2,6 @@
 
 struct TextureProperties
 {
-    int unit;
     int width;
     int height;
     int numChannels;

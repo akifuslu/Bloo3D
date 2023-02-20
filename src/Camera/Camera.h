@@ -96,4 +96,5 @@ class Camera : public Object
         float _far;
         u_int32_t _width;
         u_int32_t _height;
+        float _fdist;
 };

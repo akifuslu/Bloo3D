@@ -3,10 +3,10 @@
 #include <GL/glew.h>
 
 GLTexture::GLTexture(const TextureProperties& props)
-    : _unit(props.unit), _width(props.width), _height(props.height)
+    : _width(props.width), _height(props.height), _numChannels(props.numChannels)
 {
     glGenTextures(1, &_rendererId);
-    glActiveTexture(GL_TEXTURE0 + _unit);    
+    glActiveTexture(GL_TEXTURE0); // use unit 0 for setup    
     glBindTexture(GL_TEXTURE_2D, _rendererId);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, 0);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 0);
@@ -20,6 +20,7 @@ GLTexture::~GLTexture()
 
 void GLTexture::Bind(int unit)
 {
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, _rendererId);
 }
 

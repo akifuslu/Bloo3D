@@ -15,6 +15,7 @@
 #include "Logger.h"
 #include "Input.h"
 #include "Interactors/ObjectModeInteractor.h"
+#include "ResourceManager.h"
 
 #include "pch.h"
 
@@ -32,9 +33,9 @@ int main(void)
     renderer->SetMode(GLRenderMode::RAYTRACER);
     renderer->OnResize(window->GetWidth(), window->GetHeight());
 
+    ResourceManager::Instance().LoadInternals();
     std::unique_ptr<Texture> to;
     to.reset(Texture::Create({
-        .unit = 0,
         .width = window->GetWidth(),
         .height = window->GetHeight()
     }));
@@ -99,6 +100,7 @@ int main(void)
     testScene.AddObject(cube.get());
     testScene.AddObject(cube2.get());
     testScene.AddObject(cube3.get());
+    testScene.AddObject(light.get());
 
     //testScene.AddObject(light.get());
 

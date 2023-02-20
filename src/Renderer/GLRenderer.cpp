@@ -3,7 +3,10 @@
 #include "Scene/Scene.h"
 #include "Logger.h"
 #include "pch.h"
+#include "ResourceManager.h"
+#include "Styles.h"
 #include <GL/glew.h>
+#include "glm/gtx/string_cast.hpp"
 
 GLRenderer::GLRenderer() 
 {
@@ -23,7 +26,11 @@ GLRenderer::GLRenderer()
     _editorOutlineShader.reset(Shader::Create(s_BasePath + "/res/shaders/EditorOutline.shader"));
     // init unlit shader
     _unlitShader.reset(Shader::Create(s_BasePath + "/res/shaders/Unlit.shader"));
+    // init point shader
+    _pointShader.reset(Shader::Create(s_BasePath + "/res/shaders/PointSprite.shader"));
 
+    _pointBuffer.reset(VertexBuffer::Create(&glm::vec3(0)[0], sizeof(float) * 3));
+    _pbLayout.Push<float>(3);    
     // init matrix buffer, we pass no data since we dont have the camera info yet
     // but we pass the size so GPU can reserve the space for later use
     _matrixBuffer.reset(UniformBuffer::Create(nullptr, sizeof(glm::mat4)));
@@ -33,6 +40,9 @@ GLRenderer::GLRenderer()
     _editorOutlineShader->SetUniformBlockBinding("Matrices", 0);
     _unlitShader->SetUniformBlockBinding("Matrices", 0);
     _gridShader->SetUniformBlockBinding("Matrices", 0);    
+    _pointShader->SetUniformBlockBinding("Matrices", 0);
+
+    glPointSize(Styles::PointSize);
 }
 
 GLRenderer::~GLRenderer() 
@@ -106,11 +116,11 @@ void GLRenderer::RenderInternal(Scene& scene)
             _editorOutlineShader->SetVec2("ScreenSize", scene.editorCamera->GetSize());
             if(scene.activeObject.Get() == mesh)
             {
-                _editorOutlineShader->SetVec3("OutlineColor", {0.0, 0.3686, 1.0});
+                _editorOutlineShader->SetVec3("OutlineColor", Styles::ActiveObjectColor);
             }
             else
             {
-                _editorOutlineShader->SetVec3("OutlineColor", {0.39608,  0.58431,  0.91373});
+                _editorOutlineShader->SetVec3("OutlineColor", Styles::SelectedObjectColor);
             }
             _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
             mesh->renderInfo.ib->Bind();
@@ -122,6 +132,30 @@ void GLRenderer::RenderInternal(Scene& scene)
     // transparent objects
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
+    // render light gizmos
+    for(auto& light: scene.GetLights())
+    {
+        auto m = light->transform.LocalToWorld();
+        _pointShader->Bind();
+        _pointShader->SetMatrix4("M", m);
+        _pointShader->SetInt("Tex", 0);
+        if(scene.activeObject.Get() == light)
+        {
+            _pointShader->SetVec3("BaseColor", Styles::ActiveObjectColor);
+        }
+        else if(light->selected)
+        {
+            _pointShader->SetVec3("BaseColor", Styles::SelectedObjectColor);
+        }
+        else
+        {
+            _pointShader->SetVec3("BaseColor", Styles::LightGizmoColor);
+        }
+        ResourceManager::Instance().GetInternalTexture(InternalTextureTag::POINT_LIGHT_GIZMO)->Bind(0);
+        _vao->AddBuffer(_pointBuffer.get(), _pbLayout);
+        glDrawArrays(GL_POINTS, 0, 1);
+    }
+
     // render grid last
     _gridShader->Bind();
     auto gp = scene.editorCamera->GetGridPlane();

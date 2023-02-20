@@ -68,6 +68,7 @@ void Camera::OnUpdate()
                 f *= delta.y < 0 ? -1 : 1;
             }
             transform.SetLocation(transform.GetLocation() + transform.Forward() * f);
+            _fdist = length(transform.GetLocation());
         }
         else // orbit
         {
@@ -85,20 +86,24 @@ void Camera::OnUpdate()
         // toggle pers/ortho
         projection = (projection == CameraProjection::PERSPECTIVE) ? 
                      CameraProjection::ORTHOGRAPHIC : CameraProjection::PERSPECTIVE;
+        _fdist = length(transform.GetLocation());
         RebuildMatrix();
     }
     else if(Input::GetKeyDown(KeyCode::N1)) // front view
     {
+        _fdist = length(transform.GetLocation());
         projection = CameraProjection::ORTHOGRAPHIC;
         transform.SetRotation({0, 0, 0});
     }
     else if(Input::GetKeyDown(KeyCode::N3)) // right view
     {
+        _fdist = length(transform.GetLocation());
         projection = CameraProjection::ORTHOGRAPHIC;
         transform.SetRotation({0, -90, 0});
     }
     else if(Input::GetKeyDown(KeyCode::N7)) // top view
     {
+        _fdist = length(transform.GetLocation());
         projection = CameraProjection::ORTHOGRAPHIC;
         transform.SetRotation({90, 0, 0});
     }
@@ -125,7 +130,7 @@ void Camera::RebuildMatrix()
     else
     {
         float ratioSize = atan(glm::radians(_fov / 2.0f)) * 2.0f;
-        float distance = length(transform.GetLocation());
+        float distance = _fdist;
         float y = ratioSize * distance;
         float x = ratioSize * distance * _aspect;
         _proj = glm::orthoLH(-x, x, -y, y, -_far, _far);

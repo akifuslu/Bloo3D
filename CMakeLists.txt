@@ -34,6 +34,7 @@ set (SRC
         src/GPU/GL/GLTexture.cpp
         src/GPU/GL/GLUniformBuffer.cpp
         src/Interactors/ObjectModeInteractor.cpp
+        src/ResourceManager.cpp
         external/imgui/imgui_demo.cpp
         external/imgui/imgui_draw.cpp
         external/imgui/imgui_impl_glfw.cpp
