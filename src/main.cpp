@@ -51,9 +51,8 @@ int main(void)
     camera->transform.SetLocation(glm::vec3(0, 2, -5));
     camera->transform.SetRotation(glm::vec3(15, 0, 0));
 
-    std::unique_ptr<DirectionalLight> editorLight = std::make_unique<DirectionalLight>();
-    editorLight->SetColor({1, 1, 1});
-    editorLight->SetPower(1);
+    std::unique_ptr<Light> editorLight = std::make_unique<Light>();
+    editorLight->lightType = LightType::DIRECTIONAL;
     editorLight->transform.SetRotation({90, 0, 30});
 
     // create renderer
@@ -62,7 +61,6 @@ int main(void)
     std::unique_ptr<Mesh> mesh = std::make_unique<Mesh>();
     mesh->name = "Monki";
     Importer::Import(s_BasePath + "/res/monkey.obj", mesh.get());
-    raytracer.AddMesh(mesh.get());
 
     std::unique_ptr<Mesh> cube = std::make_unique<Mesh>();
     Importer::Import(s_BasePath + "/res/cube.obj", cube.get());
@@ -73,8 +71,6 @@ int main(void)
     std::unique_ptr<Mesh> cube3 = std::make_unique<Mesh>();
     Importer::Import(s_BasePath + "/res/cube.obj", cube3.get());
     cube3->name = "Cube3";
-
-    raytracer.AddMesh(cube.get());
 
     std::unique_ptr<MaterialPBR> difMat = std::make_unique<MaterialPBR>();
     difMat->ambient = glm::vec3(0.1f, 0.1f, 0.1f);
@@ -87,12 +83,12 @@ int main(void)
     cube->materialIndex = matIndex;
 
 
-    std::unique_ptr<PointLight> light = std::make_unique<PointLight>();
+    std::unique_ptr<Light> light = std::make_unique<Light>();
     light->name = "PointLight";
-    light->SetPower(10);
+    light->power = 10;
     light->transform.SetLocation(glm::vec3(0, 5, -5));
 
-    raytracer.AddLight(light.get());
+    //raytracer.AddLight(light.get());
 
     std::unique_ptr<UIManager> uiManager = std::make_unique<UIManager>(window.get());
 
@@ -128,7 +124,7 @@ int main(void)
             raytracer.OnResize(window->GetWidth(), window->GetHeight());
             if(renderer->GetMode() == GLRenderMode::RAYTRACER)
             {
-                raytracer.Render();
+                raytracer.Render(&testScene);
                 to->Bind(0);
             }
         }
@@ -146,7 +142,7 @@ int main(void)
         if (Estate == GLFW_PRESS)
         {
             renderer->SetMode(GLRenderMode::RAYTRACER);
-            raytracer.Render();
+            raytracer.Render(&testScene);
         }
         int Qstate = glfwGetKey(window->Get(), GLFW_KEY_Q);
         if (Qstate == GLFW_PRESS)

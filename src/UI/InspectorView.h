@@ -3,6 +3,7 @@
 #include "Scene/Object.h"
 #include "ObjectInspector.h"
 #include "TransformInspector.h"
+#include "LightInspector.h"
 
 class InspectorView
 {
@@ -11,9 +12,9 @@ class InspectorView
         void Bind(Object* obj);
         void UnBind();
     private:
-        Object* _obj;
-        bool _open;
+        Object* _obj = nullptr;
         ObjectInspector _objInsp;
         TransformInspector _transformInsp;
+        LightInspector _lightInsp;
 
 };

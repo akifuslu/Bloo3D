@@ -23,6 +23,7 @@ set (SRC
         src/UI/InspectorView.cpp
         src/UI/TransformInspector.cpp
         src/UI/ObjectInspector.cpp
+        src/UI/LightInspector.cpp
         src/GPU/Buffer.cpp        
         src/GPU/VertexBufferLayout.cpp
         src/GPU/Shader.cpp

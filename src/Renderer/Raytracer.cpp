@@ -5,6 +5,7 @@
 #include "Light/Light.h"
 #include "Material/Material.h"
 #include "GPU/Texture.h"
+#include "Scene/Scene.h"
 
 
 Raytracer::Raytracer(Camera* camera, Texture* target)
@@ -23,18 +24,6 @@ void Raytracer::OnResize(int width, int height)
     _buffer.resize(width * height * 4);
 }
 
-int Raytracer::AddMesh(Mesh* mesh)
-{
-    _meshes.push_back(mesh);
-    return _meshes.size() - 1;
-}
-
-int Raytracer::AddLight(PointLight* light)
-{
-    _lights.push_back(light);
-    return _lights.size() - 1;
-}
-
 int Raytracer::AddMaterial(MaterialBase* mat)
 {
     _mats.push_back(mat);
@@ -43,35 +32,17 @@ int Raytracer::AddMaterial(MaterialBase* mat)
 
 void Raytracer::Refresh()
 {
-    if(_onRender)
-    {
-        _pixelIndex = 0;
-    }
-    else
-    {
-        Render();
-    }
+    // if(_onRender)
+    // {
+    //     _pixelIndex = 0;
+    // }
+    // else
+    // {
+    //     Render();
+    // }
 }
 
-bool Raytracer::RayCast(const Ray& ray, RayHit* hit)
-{
-    bool hasHit = false;
-    for (size_t i = 0; i < _meshes.size(); i++)
-    {
-        RayHit nhit;
-        if(_meshes[i]->RayCast(ray, &nhit))
-        {
-            if(nhit.distance < hit->distance)
-            {
-                *hit = nhit;
-                hasHit = true;
-            }
-        }
-    }
-    return hasHit;
-}
-
-void Raytracer::Render() 
+void Raytracer::Render(Scene* scene) 
 {
     std::cout << "Render Started" << std::endl;
     _onRender = true;
@@ -79,7 +50,7 @@ void Raytracer::Render()
     int cores = std::thread::hardware_concurrency() - 1;
     while(cores--)
     {
-        _pool.push_task(&Raytracer::RenderInternal, this);
+        _pool.push_task(&Raytracer::RenderInternal, this, scene);
     }
     auto starttime = std::chrono::high_resolution_clock().now();
     _pool.wait_for_tasks();
@@ -91,7 +62,7 @@ void Raytracer::Render()
     std::cout << deltaTime.count() << "ms" << std::endl;
 }
 
-glm::vec3 Raytracer::GetFragColor(const Ray& ray, const RayHit& frag)
+glm::vec3 Raytracer::GetFragColor(Scene* scene, const Ray& ray, const RayHit& frag)
 {
     glm::vec3 color(0.0f);
     if(frag.matIndex == -1) // no material assigned
@@ -99,11 +70,11 @@ glm::vec3 Raytracer::GetFragColor(const Ray& ray, const RayHit& frag)
         return color;
     }
 
-    for (size_t i = 0; i < _lights.size(); i++)
+    for(auto& light: scene->GetLights())
     {
-        glm::vec3 lightDir = normalize(_lights[i]->transform.GetLocation() - frag.point);
+        glm::vec3 lightDir = normalize(light->transform.GetLocation() - frag.point);
         // shadow check here
-        glm::vec3 luminance = _lights[i]->GetAttenuation(frag.point);
+        glm::vec3 luminance = light->GetAttenuation(frag.point);
         color += _mats[frag.matIndex]->Shade({
             .normal = normalize(frag.normal),
             .lightDir = normalize(lightDir),
@@ -116,7 +87,7 @@ glm::vec3 Raytracer::GetFragColor(const Ray& ray, const RayHit& frag)
     return color;
 }
 
-void Raytracer::RenderInternal()
+void Raytracer::RenderInternal(Scene* scene)
 {
     u_int32_t size = _camera->GetWidth() * _camera->GetHeight();
     u_int32_t width = _camera->GetWidth();
@@ -132,9 +103,9 @@ void Raytracer::RenderInternal()
 
         auto ray = _camera->GetRay(x, y);
         RayHit hit;
-        if(RayCast(ray, &hit))
+        if(scene->Raycast(ray, &hit))
         {
-            auto color = GetFragColor(ray, hit);
+            auto color = GetFragColor(scene, ray, hit);
             color *= 255.0f;
             color = glm::clamp(color, 0.0f, 255.0f);
             _buffer[index * 4] = color.x;

@@ -4,52 +4,83 @@
 #include "glm/glm.hpp"
 #include "pch.h"
 
+
+enum class LightType
+{
+    POINT,
+    DIRECTIONAL,
+    SPOT,
+    AREA
+};
+
+class Light;
+
+class LightState
+{
+    public:
+        LightState(Light* context) : context(context){}
+        virtual ~LightState() = default;
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) = 0;
+        Light* context;
+};
+
+class PointLight : public LightState
+{
+    public:
+        PointLight(Light* c) : LightState(c) {}
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+};
+
+class DirectionalLight : public LightState
+{
+    public:
+        DirectionalLight(Light* c) : LightState(c) {}
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+};
+
+class SpotLight : public LightState
+{
+    public:
+        SpotLight(Light* c) : LightState(c) {}
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+};
+
+class AreaLight : public LightState
+{
+    public:
+        AreaLight(Light* c) : LightState(c) {}
+        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+};
+
+
 class Light : public Object
 {
     public:
-        Light() : Object(), _color(1), _power(1)
+        Light() : Object(), color(1), power(1)
         {
             type = ObjectType::LIGHT;
+            lightType = LightType::POINT; // default type
+            _states[LightType::POINT]       = new PointLight(this);
+            _states[LightType::DIRECTIONAL] = new DirectionalLight(this);
+            _states[LightType::SPOT]        = new SpotLight(this);
+            _states[LightType::AREA]        = new AreaLight(this);
         }
-        virtual ~Light() = default;
-        virtual glm::vec3 GetAttenuation(glm::vec3 point) = 0;
-        inline void SetColor(glm::vec3 color)
+        ~Light()
         {
-            _color = color;
+            for(auto& s: _states)
+            {
+                delete s.second;
+            }
         }
-        inline void SetPower(float power)
+        inline glm::vec3 GetAttenuation(glm::vec3 point)
         {
-            _power = power;
+            return _states[lightType]->GetAttenuation(point);
         }
-        inline glm::vec3 GetColor() const
-        {
-            return _color;
-        }
-        inline float GetPower() const
-        {
-            return _power;
-        }
-        inline glm::vec3 GetColorPower() const
-        {
-            return _color * _power;
-        }
-    protected:
-        glm::vec3 _color;
-        float _power;
-};
-
-class PointLight : public Light
-{
-    public:
-        PointLight() : Light() {}
-        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
-};
-
-class DirectionalLight : public Light
-{
-    public:
-        DirectionalLight() : Light() {}
-        virtual glm::vec3 GetAttenuation(glm::vec3 point) override;
+        LightType lightType;
+        glm::vec3 color;
+        float power;
+    private:
+        std::unordered_map<LightType, LightState*> _states;
 };
 
 

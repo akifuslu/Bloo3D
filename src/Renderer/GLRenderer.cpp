@@ -97,7 +97,7 @@ void GLRenderer::RenderInternal(Scene& scene)
         _editorLitShader->SetMatrix4("M", m);
         _editorLitShader->SetMatrix4("T_IM", tim);
         _editorLitShader->SetVec3("Light.dir", scene.editorLight->transform.Forward());
-        _editorLitShader->SetVec3("Light.color", scene.editorLight->GetColorPower());
+        _editorLitShader->SetVec3("Light.color", scene.editorLight->power * scene.editorLight->color);
         _editorLitShader->SetVec3("CameraPos", scene.editorCamera->transform.GetLocation());
         _vao->AddBuffer(mesh->renderInfo.vb.get(), *mesh->renderInfo.layout.get());
         mesh->renderInfo.ib->Bind();

@@ -6,31 +6,25 @@
 
 struct Ray;
 struct RayHit;
-class Mesh;
 class Camera;
-class PointLight;
 class MaterialBase;
 class Texture;
+class Scene;
 
 class Raytracer
 {
     public:
         Raytracer(Camera* camera, Texture* target);
         ~Raytracer();
-        int AddMesh(Mesh* mesh);
-        int AddLight(PointLight* light);
         int AddMaterial(MaterialBase* mat);
-        void Render();
-        bool RayCast(const Ray& ray, RayHit* hit);
+        void Render(Scene* scene);
         void Refresh();
         void OnResize(int width, int height);
     private:
-        glm::vec3 GetFragColor(const Ray& ray, const RayHit& frag);
-        void RenderInternal();
+        glm::vec3 GetFragColor(Scene* scene, const Ray& ray, const RayHit& frag);
+        void RenderInternal(Scene* scene);
         std::vector<unsigned char> _buffer;
         Camera* _camera;
-        std::vector<Mesh*> _meshes;
-        std::vector<PointLight*> _lights;
         std::vector<MaterialBase*> _mats;
 
         volatile std::atomic_bool _onRender;

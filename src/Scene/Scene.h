@@ -10,7 +10,7 @@ class Scene
 {
     public:
         Scene(){}
-        bool Raycast(const Ray& ray, RayHit* hit);
+        bool Raycast(const Ray& ray, RayHit* hit) const;
         Object* PickObject();
         void AddObject(Object* obj);
         void RemoveObject(Object* obj);
@@ -29,7 +29,7 @@ class Scene
             return _lights;
         }
         Camera* editorCamera;
-        DirectionalLight* editorLight;
+        Light* editorLight;
         ReactiveProperty<Object*> activeObject;
         std::list<Object*> selectedObjects;
     private:

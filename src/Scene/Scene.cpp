@@ -3,7 +3,7 @@
 #include "Styles.h"
 #include "glm/gtx/string_cast.hpp"
 
-bool Scene::Raycast(const Ray& ray, RayHit* hit)
+bool Scene::Raycast(const Ray& ray, RayHit* hit) const
 {
     bool hasHit = false;
     for (auto& mesh: _meshes)
